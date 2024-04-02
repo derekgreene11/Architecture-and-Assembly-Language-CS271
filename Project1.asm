@@ -29,3 +29,4 @@ main ENDP
 ; (insert additional procedures here)
 
 END main
+test
