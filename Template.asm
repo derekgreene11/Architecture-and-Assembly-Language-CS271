@@ -1,9 +1,9 @@
 TITLE Program Template     (template.asm)
 
-; Author: 
+; Author: Derek Greene
 ; Last Modified:
-; OSU email address: ONID_ID@oregonstate.edu
-; Course number/section:   CS271 Section ???
+; OSU email address: greenede@oregonstate.edu
+; Course number/section:   CS271 Section [400]
 ; Project Number:                 Due Date:
 ; Description: This file is provided as a template from which you may work
 ;              when developing assembly projects in CS271.

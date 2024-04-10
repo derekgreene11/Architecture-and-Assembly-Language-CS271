@@ -12,7 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <MASM Include="Project1.asm" />
-    <MASM Include="Template.asm" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4164AA65-1EF9-4E69-899B-D1BED776070B}</ProjectGuid>
@@ -47,7 +46,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <MASM>
       <AssembledCodeListingFile>$(ProjectName).lst</AssembledCodeListingFile>
-      <IncludePaths>c:\Irvine</IncludePaths>
+      <IncludePaths>c:\Users\Derek\Desktop\CS 271\Irvine</IncludePaths>
       <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
       <WarningLevel>3</WarningLevel>
       <NoLogo>true</NoLogo>
@@ -56,7 +55,7 @@
     </MASM>
     <Link>
       <AdditionalDependencies>user32.lib;irvine32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>c:\Irvine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>c:\Users\Derek\Desktop\CS 271\Irvine;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
