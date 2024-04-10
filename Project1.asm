@@ -18,7 +18,7 @@ INCLUDE Irvine32.inc
 .data
 
 programTitle    BYTE  "Basic Logic and Arithmetic Program    by Derek Greene",0
-instructions    BYTE  "Please enter 3 numbers in descending order.",0
+instructions    BYTE  "Please enter 3 numbers in descending order. I will calculate the sums and differences.",0
 firstNumString  BYTE  "First number: ",0
 secondNumString BYTE  "Second number: ",0
 thirdNumString  BYTE  "Third number: ",0
@@ -48,7 +48,8 @@ main PROC
     mov     EDX, OFFSET instructions
     call    WriteString
     call    CrLf
-
+    call    CrLf
+    
 ; input data
     mov     EDX, OFFSET firstNumString
     call    WriteString
@@ -173,7 +174,7 @@ main PROC
     mov     EAX, result7
     call    WriteDec
     call    CrLf
- 
+
 ; output goodbye message
     mov     EDX, OFFSET goodbye
     call    CrLf
