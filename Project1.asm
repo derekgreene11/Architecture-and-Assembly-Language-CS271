@@ -96,81 +96,81 @@ main PROC
     mov     EAX, num1
     call    WriteDec
     mov     EDX, OFFSET plusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num2
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result1
     call    WriteDec
     call    CrLf
     mov     EAX, num1
     call    WriteDec
     mov     EDX, OFFSET minusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num2
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result2
     call    WriteDec
     call    CrLf
     mov     EAX, num1
     call    WriteDec
     mov     EDX, OFFSET plusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num3
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result3
     call    WriteDec
     call    CrLf
     mov     EAX, num1
     call    WriteDec
     mov     EDX, OFFSET minusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num3
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result4
     call    WriteDec
     call    CrLf
     mov     EAX, num2
     call    WriteDec
     mov     EDX, OFFSET plusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num3
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result5
     call    WriteDec
     call    CrLf
     mov     EAX, num2
     call    WriteDec
     mov     EDX, OFFSET minusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num3
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result6
     call    WriteDec
     call    CrLf
     mov     EAX, num1
     call    WriteDec
     mov     EDX, OFFSET plusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num2
     call    WriteDec
     mov     EDX, OFFSET plusSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, num3
     call    WriteDec
     mov     EDX, OFFSET equalSymbol
-    call    WriteString
+    call    WriteChar
     mov     EAX, result7
     call    WriteDec
     call    CrLf
