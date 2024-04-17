@@ -1,4 +1,4 @@
-TITLE Basic Logic and Arithmetic Program     (Project1.asm)
+TITLE Basic Logic and Arithmetic Program     (Proj1_greenede.asm)
 
 ; Author: Derek Greene
 ; Last Modified: 4/16/2024
