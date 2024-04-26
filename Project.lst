@@ -1,17 +1,22 @@
-Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/10/24 09:14:20
-5Basic Logic and Arithmetic Program     (Project1.asm	     Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/26/24 11:25:23
+;A More Advanced Arithmetic Program     (Proj3_greenede.asm  Page 1 - 1
 
 
-				TITLE Basic Logic and Arithmetic Program     (Project1.asm)
+				TITLE A More Advanced Arithmetic Program     (Proj3_greenede.asm)
 
 				; Author: Derek Greene
-				; Last Modified: 4/9/2024
+				; Last Modified: 4/24/2024
 				; OSU email address: greenede@oregonstate.edu
 				; Course number/section:   CS271 Section [400]
-				; Project Number: 1                 Due Date: 4/21/2024
-				; Description: Program displays title, developer name, and instructions for the user. Program prompts user to input 3 
-				;              integers in descending order. The sums and differences (A+B, A-B, A+C, A-C, B+C, B-C, A+B+C) are then
-				;              calculated and displayed to the user along with a goodbye message.
+				; Project Number: 3                Due Date: 5/5/24
+				; Description: Program displays title and programmers name, followed by getting the user name and greeting
+				;              the user. The program then will prompt the user repeatedly to input a number.
+				;              Program validates user input in range [-200,-100] OR [-50,-1] (inclusive).
+				;              Program will alert user of any out of range negative numbers.
+				;              Program will store the number of valid inputs entered and calculate the valid input values.
+				;              Program will number each line of user input and increment the line number for valid input only.
+				;              Program will then calculate the rounded integer average of the valid inputs and store in a variable.
+				;              Program will display the number of valid inputs, the sum, max, min, rounded average, decimal-point-number, and a goodbye message.
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -32,231 +37,476 @@ Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/10/24 09:14:20
 			      C .LIST
 			      C 
 
-				; (insert macro definitions here)
-
-				; (insert constant definitions here)
+				; constant definitions for range [-200,-100] & [-50,-1]
+ =-000000C8			LOWER_LIMIT_1 = -200
+ =-00000032			LOWER_LIMIT_2 = -50
+ =-00000064			UPPER_LIMIT_1 = -100
+ =-00000001			UPPER_LIMIT_2 = -1
 
  00000000			.data
 
- 00000000 42 61 73 69 63	programTitle    BYTE  "Basic Logic and Arithmetic Program    by Derek Greene",0
-	   20 4C 6F 67 69
-	   63 20 61 6E 64
+ 00000000 41 20 4D 6F 72	programTitle        BYTE    "A More Advanced Arithmetic Program     by Derek Greene",0
+	   65 20 41 64 76
+	   61 6E 63 65 64
 	   20 41 72 69 74
 	   68 6D 65 74 69
 	   63 20 50 72 6F
 	   67 72 61 6D 20
-	   20 20 20 62 79
-	   20 44 65 72 65
-	   6B 20 47 72 65
-	   65 6E 65 00
- 00000036 50 6C 65 61 73	instructions    BYTE  "Please enter 3 numbers in descending order. I will calculate the sums and differences.",0
-	   65 20 65 6E 74
-	   65 72 20 33 20
-	   6E 75 6D 62 65
-	   72 73 20 69 6E
-	   20 64 65 73 63
-	   65 6E 64 69 6E
-	   67 20 6F 72 64
-	   65 72 2E 20 49
-	   20 77 69 6C 6C
-	   20 63 61 6C 63
-	   75 6C 61 74 65
+	   20 20 20 20 62
+	   79 20 44 65 72
+	   65 6B 20 47 72
+	   65 65 6E 65 00
+ 00000037 2A 2A 45 43 3A	extraCredit1        BYTE    "**EC: Program numbers each line of input, incrementing the line number for each valid input.",0
+	   20 50 72 6F 67
+	   72 61 6D 20 6E
+	   75 6D 62 65 72
+	   73 20 65 61 63
+	   68 20 6C 69 6E
+	   65 20 6F 66 20
+	   69 6E 70 75 74
+	   2C 20 69 6E 63
+	   72 65 6D 65 6E
+	   74 69 6E 67 20
+	   74 68 65 20 6C
+	   69 6E 65 20 6E
+	   75 6D 62 65 72
+	   20 66 6F 72 20
+	   65 61 63 68 20
+	   76 61 6C 69 64
+	   20 69 6E 70 75
+	   74 2E 00
+ 00000094 2A 2A 45 43 3A	extraCredit2        BYTE    "**EC: Program calculates the average as a decimal-point-number, rounded to nearest 0.01.",0
+	   20 50 72 6F 67
+	   72 61 6D 20 63
+	   61 6C 63 75 6C
+	   61 74 65 73 20
+	   74 68 65 20 61
+	   76 65 72 61 67
+	   65 20 61 73 20
+	   61 20 64 65 63
+	   69 6D 61 6C 2D
+	   70 6F 69 6E 74
+	   2D 6E 75 6D 62
+	   65 72 2C 20 72
+	   6F 75 6E 64 65
+	   64 20 74 6F 20
+	   6E 65 61 72 65
+	   73 74 20 30 2E
+	   30 31 2E 00
+ 000000ED 54 68 69 73 20	instruct1           BYTE    "This program allows for the input of negative numbers within the specified range.",0
+	   70 72 6F 67 72
+	   61 6D 20 61 6C
+	   6C 6F 77 73 20
+	   66 6F 72 20 74
+	   68 65 20 69 6E
+	   70 75 74 20 6F
+	   66 20 6E 65 67
+	   61 74 69 76 65
+	   20 6E 75 6D 62
+	   65 72 73 20 77
+	   69 74 68 69 6E
 	   20 74 68 65 20
-	   73 75 6D 73 20
-	   61 6E 64 20 64
-	   69 66 66 65 72
-	   65 6E 63 65 73
+	   73 70 65 63 69
+	   66 69 65 64 20
+	   72 61 6E 67 65
 	   2E 00
- 0000008D 46 69 72 73 74	firstNumString  BYTE  "First number: ",0
-	   20 6E 75 6D 62
-	   65 72 3A 20 00
- 0000009C 53 65 63 6F 6E	secondNumString BYTE  "Second number: ",0
+ 0000013F 54 68 65 20 6D	instruct2           BYTE    "The min, max, average, sum, number of inputs, & decimal-number are then calculated and displayed.",0
+	   69 6E 2C 20 6D
+	   61 78 2C 20 61
+	   76 65 72 61 67
+	   65 2C 20 73 75
+	   6D 2C 20 6E 75
+	   6D 62 65 72 20
+	   6F 66 20 69 6E
+	   70 75 74 73 2C
+	   20 26 20 64 65
+	   63 69 6D 61 6C
+	   2D 6E 75 6D 62
+	   65 72 20 61 72
+	   65 20 74 68 65
+	   6E 20 63 61 6C
+	   63 75 6C 61 74
+	   65 64 20 61 6E
+	   64 20 64 69 73
+	   70 6C 61 79 65
+	   64 2E 00
+ 000001A1 50 6C 65 61 73	getUserName         BYTE    "Please enter your name: ",0
+	   65 20 65 6E 74
+	   65 72 20 79 6F
+	   75 72 20 6E 61
+	   6D 65 3A 20 00
+ 000001BA 48 65 6C 6C 6F	greetUser           BYTE    "Hello, ",0
+	   2C 20 00
+ 000001C2 21 20 00		explPnt             BYTE    "! ",0
+ 000001C5 3A 20 00		colon               BYTE    ": ",0
+ 000001C8 2E 00			decimal             BYTE    ".",0
+ 000001CA 50 6C 65 61 73	userInputMsg1       BYTE    "Please enter integers in the range [-200,-100] or [-50,-1]",0
+	   65 20 65 6E 74
+	   65 72 20 69 6E
+	   74 65 67 65 72
+	   73 20 69 6E 20
+	   74 68 65 20 72
+	   61 6E 67 65 20
+	   5B 2D 32 30 30
+	   2C 2D 31 30 30
+	   5D 20 6F 72 20
+	   5B 2D 35 30 2C
+	   2D 31 5D 00
+ 00000205 57 68 65 6E 20	userInputMsg2       BYTE    "When you're done, enter a non-negative number to calculate results.",0
+	   79 6F 75 27 72
+	   65 20 64 6F 6E
+	   65 2C 20 65 6E
+	   74 65 72 20 61
+	   20 6E 6F 6E 2D
+	   6E 65 67 61 74
+	   69 76 65 20 6E
+	   75 6D 62 65 72
+	   20 74 6F 20 63
+	   61 6C 63 75 6C
+	   61 74 65 20 72
+	   65 73 75 6C 74
+	   73 2E 00
+ 00000249 49 6E 70 75 74	userInput           BYTE    "Input ",0
+	   20 00
+ 00000250 49 4E 56 41 4C	invalidNeg          BYTE    "INVALID: number is not in range [-200,-100] or [-50,-1].",0
+	   49 44 3A 20 6E
+	   75 6D 62 65 72
+	   20 69 73 20 6E
+	   6F 74 20 69 6E
+	   20 72 61 6E 67
+	   65 20 5B 2D 32
+	   30 30 2C 2D 31
+	   30 30 5D 20 6F
+	   72 20 5B 2D 35
+	   30 2C 2D 31 5D
+	   2E 00
+ 00000289 45 52 52 4F 52	noValidNums         BYTE    "ERROR: no valid integers entered!",0
+	   3A 20 6E 6F 20
+	   76 61 6C 69 64
+	   20 69 6E 74 65
+	   67 65 72 73 20
+	   65 6E 74 65 72
+	   65 64 21 00
+ 000002AB 59 6F 75 20 65	resultMsg1          BYTE    "You entered ",0
+	   6E 74 65 72 65
+	   64 20 00
+ 000002B8 20 76 61 6C 69	resultMsg2          BYTE    " valid numbers",0
 	   64 20 6E 75 6D
-	   62 65 72 3A 20
+	   62 65 72 73 00
+ 000002C7 53 75 6D 3A 20	resultSum           BYTE    "Sum: ",0
 	   00
- 000000AC 54 68 69 72 64	thirdNumString  BYTE  "Third number: ",0
-	   20 6E 75 6D 62
-	   65 72 3A 20 00
- 000000BB 20 2B 20 00		plusSymbol      BYTE  " + ",0
- 000000BF 20 2D 20 00		minusSymbol     BYTE  " - ",0
- 000000C3 20 3D 20 00		equalSymbol     BYTE  " = ",0
- 000000C7 00000000		num1            DWORD ?
- 000000CB 00000000		num2            DWORD ?
- 000000CF 00000000		num3            DWORD ?
- 000000D3 00000000		result1         DWORD ?
- 000000D7 00000000		result2         DWORD ?
- 000000DB 00000000		result3         DWORD ?
- 000000DF 00000000		result4         DWORD ?
- 000000E3 00000000		result5         DWORD ?
- 000000E7 00000000		result6         DWORD ?
- 000000EB 00000000		result7         DWORD ?
- 000000EF 54 68 61 6E 6B	goodbye         BYTE  "Thank you for using Basic Logic and Arithmetic! Goodbye!",0
-	   20 79 6F 75 20
-	   66 6F 72 20 75
-	   73 69 6E 67 20
-	   42 61 73 69 63
-	   20 4C 6F 67 69
-	   63 20 61 6E 64
-	   20 41 72 69 74
-	   68 6D 65 74 69
-	   63 21 20 47 6F
-	   6F 64 62 79 65
-	   21 00
+ 000002CD 4D 61 78 69 6D	resultMax           BYTE    "Maximum: ",0
+	   75 6D 3A 20 00
+ 000002D7 4D 69 6E 69 6D	resultMin           BYTE    "Minimum: ",0
+	   75 6D 3A 20 00
+ 000002E1 52 6F 75 6E 64	resultAvg           BYTE    "Rounded Average: ",0
+	   65 64 20 41 76
+	   65 72 61 67 65
+	   3A 20 00
+ 000002F3 44 65 63 69 6D	resultDec           BYTE    "Decimal-Number: ",0
+	   61 6C 2D 4E 75
+	   6D 62 65 72 3A
+	   20 00
+ 00000304 54 68 61 6E 6B	goodbyeMsg          BYTE    "Thanks for using A more Advanced Arithemetic Program! Goodbye, ",0
+	   73 20 66 6F 72
+	   20 75 73 69 6E
+	   67 20 41 20 6D
+	   6F 72 65 20 41
+	   64 76 61 6E 63
+	   65 64 20 41 72
+	   69 74 68 65 6D
+	   65 74 69 63 20
+	   50 72 6F 67 72
+	   61 6D 21 20 47
+	   6F 6F 64 62 79
+	   65 2C 20 00
+ 00000344 00000000		userNameBytes       DWORD   ?         ; holds number of characters in username
+ 00000348  00000014 [		userName            BYTE    20 DUP(0) 
+	    00
+	   ]
+ 0000035C 00000000		inputNum            SDWORD  ?
+ 00000360 FFFFFF38		max                 SDWORD  -200      
+ 00000364 00000000		min                 SDWORD  ?
+ 00000368 00000000		sum                 SDWORD  ?
+ 0000036C 00000000		avg                 SDWORD  ?
+ 00000370 00000000		avg2                SDWORD  ?
+ 00000374 00000000		count               DWORD   0
+ 00000378 00000000		rmd                 DWORD   ?
+ 0000037C 00000000		intPart             DWORD   ?
+ 00000380 00000000		oneHundred          DWORD   ?
+ 00000384 00000000		decimalPart         DWORD   ?
 
  00000000			.code
  00000000			main PROC
-
-				; introduction
+				
+				; ----------------------------------------------------------
+				; Displays program title, instructions, and username prompt.
+				; Username input is stored in userName.  
+				; Displays hello message with username
+				; -----------------------------------------------------------
  00000000  BA 00000000 R	    mov     EDX, OFFSET programTitle
  00000005  E8 00000000 E	    call    WriteString
  0000000A  E8 00000000 E	    call    CrLf
- 0000000F  E8 00000000 E	    call    CrLf
- 00000014  BA 00000036 R	    mov     EDX, OFFSET instructions
- 00000019  E8 00000000 E	    call    WriteString
- 0000001E  E8 00000000 E	    call    CrLf
- 00000023  E8 00000000 E	    call    CrLf
-				    
-				; input data
- 00000028  BA 0000008D R	    mov     EDX, OFFSET firstNumString
- 0000002D  E8 00000000 E	    call    WriteString
- 00000032  E8 00000000 E	    call    ReadDec
- 00000037  A3 000000C7 R	    mov     num1, EAX
- 0000003C  BA 0000009C R	    mov     EDX, OFFSET secondNumString
+ 0000000F  BA 00000037 R	    mov     EDX, OFFSET extraCredit1
+ 00000014  E8 00000000 E	    call    WriteString
+ 00000019  E8 00000000 E	    call    CrLf
+ 0000001E  BA 00000094 R	    mov     EDX, OFFSET extraCredit2
+ 00000023  E8 00000000 E	    call    WriteString
+ 00000028  E8 00000000 E	    call    CrLf
+ 0000002D  BA 000000ED R	    mov     EDX, OFFSET instruct1
+ 00000032  E8 00000000 E	    call    WriteString
+ 00000037  E8 00000000 E	    call    CrLf
+ 0000003C  BA 0000013F R	    mov     EDX, OFFSET instruct2
  00000041  E8 00000000 E	    call    WriteString
- 00000046  E8 00000000 E	    call    ReadDec
- 0000004B  A3 000000CB R	    mov     num2, EAX
- 00000050  BA 000000AC R	    mov     EDX, OFFSET thirdNumString
+ 00000046  E8 00000000 E	    call    CrLf
+ 0000004B  E8 00000000 E	    call    CrLf
+ 00000050  BA 000001A1 R	    mov     EDX, OFFSET getUserName
  00000055  E8 00000000 E	    call    WriteString
- 0000005A  E8 00000000 E	    call    ReadDec
- 0000005F  A3 000000CF R	    mov     num3, EAX
+ 0000005A  BA 00000348 R	    mov     EDX, OFFSET userName
+ 0000005F  B9 00000014		    mov     ECX, SIZEOF userName
+ 00000064  E8 00000000 E	    call    ReadString
+ 00000069  A3 00000344 R	    mov     userNameBytes, EAX
+ 0000006E  E8 00000000 E	    call    CrLf
+ 00000073  BA 000001BA R	    mov     EDX, OFFSET greetUser
+ 00000078  E8 00000000 E	    call    WriteString
+ 0000007D  BA 00000348 R	    mov     EDX, OFFSET userName
+ 00000082  E8 00000000 E	    call    WriteString
+ 00000087  BA 000001C2 R	    mov     EDX, OFFSET explPnt
+ 0000008C  E8 00000000 E	    call    WriteString
+ 00000091  BA 000001CA R	    mov     EDX, OFFSET userInputMsg1
+ 00000096  E8 00000000 E	    call    WriteString
+ 0000009B  E8 00000000 E	    call    CrLf
+ 000000A0  BA 00000205 R	    mov     EDX, OFFSET userInputMsg2
+ 000000A5  E8 00000000 E	    call    WriteString
+ 000000AA  E8 00000000 E	    call    CrLf
+ 000000AF  E8 00000000 E	    call    CrLf
+				
+ 000000B4			_getInput:
+				; ---------------------------------------------------------------------------
+				; Displays current line number and requests user input integer.
+				; Displays current line number as count + 1 so line number starts at 1 instead of 0.
+				; ---------------------------------------------------------------------------
+ 000000B4  BA 00000249 R	    mov     EDX, OFFSET userInput
+ 000000B9  E8 00000000 E	    call    WriteString
+ 000000BE  A1 00000374 R	    mov     EAX, count
+ 000000C3  83 C0 01		    add     EAX, 1
+ 000000C6  E8 00000000 E	    call    WriteDec
+ 000000CB  BA 000001C5 R	    mov     EDX, OFFSET colon
+ 000000D0  E8 00000000 E	    call    WriteString
+ 000000D5  E8 00000000 E	    call    ReadInt
+ 000000DA  A3 0000035C R	    mov     inputNum, EAX
+				
+				; ----------------------------------------------------------------------------------
+				; Validate inputs. If input is out or range, out-of-range message will be displayed.
+				; If input is positive, program will display results, goodbye message, and end.
+				; If no valid intput, program will display error message, goodbye message, and end.
+				; ----------------------------------------------------------------------------------
+				
+				; validate input for negative integers. If positive, jmp to calculate results else exit loop
+ 000000DF  B8 00000000		    mov     EAX, 0              ; set EAX to 0 in order to correctly set the sign flag in next cmp instruction (inputNum - EAX) 
+ 000000E4  39 05 0000035C R	    cmp     inputNum, EAX
+ 000000EA  79 73		    jns      _exitLoop          ; jmp if sign flag = 0 (positive result)
 
-				; cacluate results
- 00000064  A1 000000C7 R	    mov     EAX, num1
- 00000069  8B 1D 000000CB R	    mov     EBX, num2
- 0000006F  03 C3		    ADD     EAX, EBX
- 00000071  A3 000000D3 R	    mov     result1, EAX
- 00000076  A1 000000C7 R	    mov     EAX, num1
- 0000007B  2B 05 000000CB R	    SUB     EAX, num2
- 00000081  A3 000000D7 R	    mov     result2, EAX
- 00000086  A1 000000C7 R	    mov     EAX, num1
- 0000008B  8B 1D 000000CF R	    mov     EBX, num3
- 00000091  03 C3		    ADD     EAX, EBX
- 00000093  A3 000000DB R	    mov     result3, EAX
- 00000098  A1 000000C7 R	    mov     EAX, num1
- 0000009D  2B 05 000000CF R	    SUB     EAX, num3
- 000000A3  A3 000000DF R	    mov     result4, EAX
- 000000A8  A1 000000CB R	    mov     EAX, num2
- 000000AD  8B 1D 000000CF R	    mov     EBX, num3
- 000000B3  03 C3		    ADD     EAX, EBX
- 000000B5  A3 000000E3 R	    mov     result5, EAX
- 000000BA  A1 000000CB R	    mov     EAX, num2
- 000000BF  2B 05 000000CF R	    SUB     EAX, num3
- 000000C5  A3 000000E7 R	    mov     result6, EAX
- 000000CA  A1 000000C7 R	    mov     EAX, num1
- 000000CF  03 05 000000CB R	    ADD     EAX, num2
- 000000D5  03 05 000000CF R	    ADD     EAX, num3
- 000000DB  A3 000000EB R	    mov     result7, EAX
+				; validate input for lower end of first range n >= -200. If n < -200, jmp to invalidNegMsg
+ 000000EC  A1 0000035C R	    mov     EAX, inputNum
+ 000000F1  3D FFFFFF38		    cmp     EAX, LOWER_LIMIT_1
+ 000000F6  7C 13		    jl      _invalidNegMsg      ; jmp if input < -200 (out of bounds)
+				
+				; validate input for upper end of first range n <= -100. If n > -100, check if input fits within 2nd range [-50, -1]
+ 000000F8  83 F8 9C		    cmp     EAX, UPPER_LIMIT_1
+ 000000FB  7F 02		    jg      _continue           ; jmp if input > -100 (out of bounds)
+ 000000FD  EB 22		    jmp     _valid              
+				
+				; validate input for lower end of second range n >= -50. If n < -50, jmp to invalidNegMsg
+ 000000FF			_continue:
+ 000000FF  83 F8 CE		    cmp     EAX, LOWER_LIMIT_2
+ 00000102  7C 07		    jl      _invalidNegMsg      ; jmp if input < -50 (out of bounds)
+				
+				; validate input for upper end of second range n <= -1. If n > -1, jmp to invalidNegMsg
+ 00000104  83 F8 FF		    cmp     EAX, UPPER_LIMIT_2
+ 00000107  7F 02		    jg      _invalidNegMsg      ; jmp if input > -1 (out of bounds)
+ 00000109  EB 16		    jmp     _valid              ;
 
-				; output results
- 000000E0  E8 00000000 E	    call    CrLf
- 000000E5  A1 000000C7 R	    mov     EAX, num1
- 000000EA  E8 00000000 E	    call    WriteDec
- 000000EF  BA 000000BB R	    mov     EDX, OFFSET plusSymbol
- 000000F4  E8 00000000 E	    call    WriteString
- 000000F9  A1 000000CB R	    mov     EAX, num2
- 000000FE  E8 00000000 E	    call    WriteDec
- 00000103  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 00000108  E8 00000000 E	    call    WriteString
- 0000010D  A1 000000D3 R	    mov     EAX, result1
- 00000112  E8 00000000 E	    call    WriteDec
- 00000117  E8 00000000 E	    call    CrLf
- 0000011C  A1 000000C7 R	    mov     EAX, num1
- 00000121  E8 00000000 E	    call    WriteDec
- 00000126  BA 000000BF R	    mov     EDX, OFFSET minusSymbol
- 0000012B  E8 00000000 E	    call    WriteString
- 00000130  A1 000000CB R	    mov     EAX, num2
- 00000135  E8 00000000 E	    call    WriteDec
- 0000013A  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 0000013F  E8 00000000 E	    call    WriteString
- 00000144  A1 000000D7 R	    mov     EAX, result2
- 00000149  E8 00000000 E	    call    WriteDec
- 0000014E  E8 00000000 E	    call    CrLf
- 00000153  A1 000000C7 R	    mov     EAX, num1
- 00000158  E8 00000000 E	    call    WriteDec
- 0000015D  BA 000000BB R	    mov     EDX, OFFSET plusSymbol
- 00000162  E8 00000000 E	    call    WriteString
- 00000167  A1 000000CF R	    mov     EAX, num3
- 0000016C  E8 00000000 E	    call    WriteDec
- 00000171  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 00000176  E8 00000000 E	    call    WriteString
- 0000017B  A1 000000DB R	    mov     EAX, result3
- 00000180  E8 00000000 E	    call    WriteDec
- 00000185  E8 00000000 E	    call    CrLf
- 0000018A  A1 000000C7 R	    mov     EAX, num1
- 0000018F  E8 00000000 E	    call    WriteDec
- 00000194  BA 000000BF R	    mov     EDX, OFFSET minusSymbol
- 00000199  E8 00000000 E	    call    WriteString
- 0000019E  A1 000000CF R	    mov     EAX, num3
- 000001A3  E8 00000000 E	    call    WriteDec
- 000001A8  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 000001AD  E8 00000000 E	    call    WriteString
- 000001B2  A1 000000DF R	    mov     EAX, result4
- 000001B7  E8 00000000 E	    call    WriteDec
- 000001BC  E8 00000000 E	    call    CrLf
- 000001C1  A1 000000CB R	    mov     EAX, num2
- 000001C6  E8 00000000 E	    call    WriteDec
- 000001CB  BA 000000BB R	    mov     EDX, OFFSET plusSymbol
- 000001D0  E8 00000000 E	    call    WriteString
- 000001D5  A1 000000CF R	    mov     EAX, num3
- 000001DA  E8 00000000 E	    call    WriteDec
- 000001DF  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 000001E4  E8 00000000 E	    call    WriteString
- 000001E9  A1 000000E3 R	    mov     EAX, result5
- 000001EE  E8 00000000 E	    call    WriteDec
- 000001F3  E8 00000000 E	    call    CrLf
- 000001F8  A1 000000CB R	    mov     EAX, num2
- 000001FD  E8 00000000 E	    call    WriteDec
- 00000202  BA 000000BF R	    mov     EDX, OFFSET minusSymbol
- 00000207  E8 00000000 E	    call    WriteString
- 0000020C  A1 000000CF R	    mov     EAX, num3
- 00000211  E8 00000000 E	    call    WriteDec
- 00000216  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 0000021B  E8 00000000 E	    call    WriteString
- 00000220  A1 000000E7 R	    mov     EAX, result6
- 00000225  E8 00000000 E	    call    WriteDec
- 0000022A  E8 00000000 E	    call    CrLf
- 0000022F  A1 000000C7 R	    mov     EAX, num1
- 00000234  E8 00000000 E	    call    WriteDec
- 00000239  BA 000000BB R	    mov     EDX, OFFSET plusSymbol
- 0000023E  E8 00000000 E	    call    WriteString
- 00000243  A1 000000CB R	    mov     EAX, num2
- 00000248  E8 00000000 E	    call    WriteDec
- 0000024D  BA 000000BB R	    mov     EDX, OFFSET plusSymbol
- 00000252  E8 00000000 E	    call    WriteString
- 00000257  A1 000000CF R	    mov     EAX, num3
- 0000025C  E8 00000000 E	    call    WriteDec
- 00000261  BA 000000C3 R	    mov     EDX, OFFSET equalSymbol
- 00000266  E8 00000000 E	    call    WriteString
- 0000026B  A1 000000EB R	    mov     EAX, result7
- 00000270  E8 00000000 E	    call    WriteDec
- 00000275  E8 00000000 E	    call    CrLf
+				; display invalidNegMsg
+ 0000010B			_invalidNegMsg:
+ 0000010B  E8 00000000 E	    call    CrlF
+ 00000110  BA 00000250 R	    mov     EDX, OFFSET invalidNeg
+ 00000115  E8 00000000 E	    call    WriteString
+ 0000011A  E8 00000000 E	    call    CrlF
+ 0000011F  EB 93		    jmp     _getInput           ; return back to input loop after displaying invalidNeg message
+				
+				; ----------------------------------------------------------------------------------------------------
+				; Check input to determine if input is new max or new min.
+				; If input is > min, jmp to _max and checks if input < max. If input < min, input is saved as new min.
+				; If input > max, input is saved as new max.
+				; After checking each input, returns back to input loop.
+				; -----------------------------------------------------------------------------------------------------
+				
+				; add input to sum, increment count
+ 00000121			_valid:
+ 00000121  A1 0000035C R	    mov     EAX, inputNum
+ 00000126  01 05 00000368 R	    add     sum, EAX
+ 0000012C  FF 05 00000374 R	    inc     count
+				
+				; check if input < min, if true, update min
+ 00000132			_min:
+ 00000132  A1 0000035C R	    mov     EAX, inputNum
+ 00000137  3B 05 00000364 R	    cmp     EAX, min
+ 0000013D  7F 05		    jg      _max            ; jmp if input > min
+ 0000013F  A3 00000364 R	    mov     min, EAX        ; else store as new min
 
-				; output goodbye message
- 0000027A  BA 000000EF R	    mov     EDX, OFFSET goodbye
- 0000027F  E8 00000000 E	    call    CrLf
- 00000284  E8 00000000 E	    call    WriteString
+				; check if input > max, if true, update max
+ 00000144			_max:
+ 00000144  A1 0000035C R	    mov     EAX, inputNum
+ 00000149  3B 05 00000360 R	    cmp     EAX, max
+ 0000014F  0F 8C FFFFFF5F	    jl      _getInput       ; jmp if input < max
+ 00000155  A3 00000360 R	    mov     max, EAX        ; else store as new max
+ 0000015A  E9 FFFFFF55		    jmp     _getInput       
 
+				; Exit from user input loop. Exits if input is positive integer
+ 0000015F			_exitLoop:
+				; check for count = 0, meaning no valid integers entered, if count = 0 jmp to noValidNums msg
+ 0000015F  A1 00000374 R	    mov     EAX, count
+ 00000164  83 F8 00		    cmp     EAX, 0
+ 00000167  0F 84 00000157	    je     _noValidNums     ; jmp if count = 0
+				
+				; -----------------------------------------------------------------------------------------------------
+				; Calculate rounded integer average with equation (((((sum * 100) / count ) + |-49|)) / 100).
+				; Works by moving decimal place (sum * 100) and then adding -49 then dividing by 100 to move the decimal place back.
+				; For 0.5 round down & 0.51 round up.
+				; ------------------------------------------------------------------------------------------------------
+				
+				; calculate rounded integer average        -       (((((sum * 100) / count ) + |-49|)) / 100)
+ 0000016D  6B 05 00000368 R	    imul    EAX, sum, 100
+	   64
+ 00000174  A3 0000036C R	    mov     avg, EAX
+ 00000179  99			    cdq                         ; sign-extened EAX into EDX for signed division
+ 0000017A  F7 3D 00000374 R	    idiv    count
+ 00000180  A3 0000036C R	    mov     avg, EAX
+ 00000185  83 05 0000036C R	    add     avg, -49
+	   CF
+ 0000018C  A1 0000036C R	    mov     EAX, avg
+ 00000191  99			    cdq                         ; sign-extened EAX into EDX for signed division
+ 00000192  C7 05 00000380 R	    mov     oneHundred, 100
+	   00000064
+ 0000019C  F7 3D 00000380 R	    idiv    oneHundred
+ 000001A2  A3 0000036C R	    mov     avg, EAX
+				
+				; -----------------------------------------------------------------------------------------------------------------------------------------
+				; In order to display decimal number without floating point units, break up the non decimal part from the decimal part.
+				; Then round the decimal part to nearest 0.01 and print both numbers seperated by a decimal. To the user, this appears as a decimal number.
+				; ((Remainder of sum / count) * 1000) / count = decimal part of number.
+				; To round decimal part (rmd) to nearest 0.01, (((rmd * 10) + |-49|) / 100) * -1) = rounded decimal part.
+				; Decimal part (rmd) * -1 to get rid of "-" sign.
+				; ------------------------------------------------------------------------------------------------------------------------------------------
+				
+				; calculate remainder of sum / count in order to get decimal part of number to display     -      rmd = intPart = sum / count  &   (rmd * 1000) / count = decimal-number decimal portion
+ 000001A7  A1 00000368 R	    mov     EAX, sum
+ 000001AC  99			    cdq                         ; sign-extened EAX into EDX for signed division
+ 000001AD  F7 3D 00000374 R	    idiv    count
+ 000001B3  89 15 00000378 R	    mov     rmd, EDX
+ 000001B9  A3 0000037C R	    mov     intPart, EAX                 ; store to display later as initial part of decimal number
+ 000001BE  69 05 00000378 R	    imul    EAX, rmd, 1000
+	   000003E8
+ 000001C8  A3 00000378 R	    mov     rmd, EAX
+ 000001CD  99			    cdq                         ; sign-extened EAX into EDX for signed division
+ 000001CE  F7 3D 00000374 R	    idiv    count
+ 000001D4  A3 00000378 R	    mov     rmd, EAX
+				
+				; round decimal part (rmd) to the nearest 0.01
+				; (((rmd * 10) + |-49|) / 100) * -1) = rounded decimal part
+ 000001D9  6B 05 00000378 R	    imul    EAX, rmd, 10
+	   0A
+ 000001E0  A3 00000378 R	    mov     rmd, EAX
+ 000001E5  83 05 00000378 R	    add     rmd, -49                    ; + |-49| will round 0.05 down to keep the same rounding format as used with the rounded integer number. If want 0.05 to round up, change to + |-50|
+	   CF
+ 000001EC  A1 00000378 R	    mov     EAX, rmd
+ 000001F1  99			    cdq                                 ; sign-extened EAX into EDX for signed division
+ 000001F2  F7 3D 00000380 R	    idiv    oneHundred
+ 000001F8  A3 00000378 R	    mov     rmd, EAX
+ 000001FD  6B 05 00000378 R	    imul    EAX, rmd, -1                ; multiply by -1 to get rid of '-' symbol 
+	   FF
+ 00000204  A3 00000378 R	    mov     rmd, EAX
+				
+				; --------------------------------------------------------------
+				; Display results max, min, avg, sum, count, and decimal-number.
+				; --------------------------------------------------------------
+
+				; display count of valid inputs 
+ 00000209  E8 00000000 E	    call    CrLf
+ 0000020E  BA 000002AB R	    mov     EDX, OFFSET resultMsg1
+ 00000213  E8 00000000 E	    call    WriteString
+ 00000218  A1 00000374 R	    mov     EAX, count
+ 0000021D  E8 00000000 E	    call    WriteDec
+ 00000222  BA 000002B8 R	    mov     EDX, OFFSET resultMsg2
+ 00000227  E8 00000000 E	    call    WriteString
+ 0000022C  E8 00000000 E	    call    CrLf
+				; display sum of valid inputs
+ 00000231  BA 000002C7 R	    mov     EDX, OFFSET resultSum
+ 00000236  E8 00000000 E	    call    WriteString
+ 0000023B  A1 00000368 R	    mov     EAX, sum
+ 00000240  E8 00000000 E	    call    WriteInt
+ 00000245  E8 00000000 E	    call    CrLf
+				; display max of valid inputs
+ 0000024A  BA 000002CD R	    mov     EDX, OFFSET resultMax
+ 0000024F  E8 00000000 E	    call    WriteString
+ 00000254  A1 00000360 R	    mov     EAX, max
+ 00000259  E8 00000000 E	    call    WriteInt
+ 0000025E  E8 00000000 E	    call    CrLf
+				; display min of valid inputs
+ 00000263  BA 000002D7 R	    mov     EDX, OFFSET resultMin
+ 00000268  E8 00000000 E	    call    WriteString
+ 0000026D  A1 00000364 R	    mov     EAX, min
+ 00000272  E8 00000000 E	    call    WriteInt
+ 00000277  E8 00000000 E	    call    CrLf
+				; display avg of valid inputs
+ 0000027C  BA 000002E1 R	    mov     EDX, OFFSET resultAvg
+ 00000281  E8 00000000 E	    call    WriteString
+ 00000286  A1 0000036C R	    mov     EAX, avg
+ 0000028B  E8 00000000 E	    call    WriteInt
+ 00000290  E8 00000000 E	    call    CrLf
+				; display average in a decimal-point-number 
+ 00000295  BA 000002F3 R	    mov     EDX, OFFSET resultDec
+ 0000029A  E8 00000000 E	    call    WriteString
+ 0000029F  A1 0000037C R	    mov     EAX, intPart
+ 000002A4  E8 00000000 E	    call    WriteInt
+ 000002A9  BA 000001C8 R	    mov     EDX, OFFSET decimal
+ 000002AE  E8 00000000 E	    call    WriteString
+ 000002B3  A1 00000378 R	    mov     EAX, rmd
+ 000002B8  E8 00000000 E	    call    WriteDec
+ 000002BD  E8 00000000 E	    call    CrLf
+ 000002C2  EB 14		    jmp     _goodbyeMsg                     ; jmp to goobye message to skip displaying the noValidNums message
+				
+				; ---------------------------------------------------------
+				; Display message if no valid numbers entered to calculate.
+				; ---------------------------------------------------------
+ 000002C4			_noValidNums:
+ 000002C4  E8 00000000 E	    call    Crlf
+ 000002C9  BA 00000289 R	    mov     EDX, OFFSET noValidNums
+ 000002CE  E8 00000000 E	    call    WriteString
+ 000002D3  E8 00000000 E	    call    Crlf
+				
+				; --------------------------------------------
+				; Display goodbye msg and prints the username.
+				; --------------------------------------------
+ 000002D8			_goodbyeMsg:
+ 000002D8  E8 00000000 E	    call    CrLf
+ 000002DD  BA 00000304 R	    mov     EDX, OFFSET goodbyeMsg
+ 000002E2  E8 00000000 E	    call    WriteString
+ 000002E7  BA 00000348 R	    mov     EDX, OFFSET userName
+ 000002EC  E8 00000000 E	    call    WriteString
+ 000002F1  BA 000001C2 R	    mov     EDX, OFFSET explPnt
+ 000002F6  E8 00000000 E	    call    WriteString
+ 000002FB  E8 00000000 E	    call    CrLf
 
 					Invoke ExitProcess,0	; exit to operating system
- 00000289  6A 00	   *	    push   +000000000h
- 0000028B  E8 00000000 E   *	    call   ExitProcess
- 00000290			main ENDP
-
-				; (insert additional procedures here)
+ 00000300  6A 00	   *	    push   +000000000h
+ 00000302  E8 00000000 E   *	    call   ExitProcess
+ 00000307			main ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/10/24 09:14:20
-5Basic Logic and Arithmetic Program     (Project1.asm	     Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/26/24 11:25:23
+;A More Advanced Arithmetic Program     (Proj3_greenede.asm  Symbols 2 - 1
 
 
 
@@ -349,8 +599,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000128 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000290 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000388 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000307 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -457,7 +707,16 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000290 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000307 Public STDCALL
+  _getInput  . . . . . . . . . .	L Near	 000000B4 _TEXT	
+  _continue  . . . . . . . . . .	L Near	 000000FF _TEXT	
+  _invalidNegMsg . . . . . . . .	L Near	 0000010B _TEXT	
+  _valid . . . . . . . . . . . .	L Near	 00000121 _TEXT	
+  _min . . . . . . . . . . . . .	L Near	 00000132 _TEXT	
+  _max . . . . . . . . . . . . .	L Near	 00000144 _TEXT	
+  _exitLoop  . . . . . . . . . .	L Near	 0000015F _TEXT	
+  _noValidNums . . . . . . . . .	L Near	 000002C4 _TEXT	
+  _goodbyeMsg  . . . . . . . . .	L Near	 000002D8 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -549,6 +808,8 @@ KEY_EVENT  . . . . . . . . . . .	Number	 00000001h
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
+LOWER_LIMIT_1  . . . . . . . . .	Number	 -000000C8h   
+LOWER_LIMIT_2  . . . . . . . . .	Number	 -00000032h   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
 MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
 MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
@@ -595,6 +856,8 @@ SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
+UPPER_LIMIT_1  . . . . . . . . .	Number	 -00000064h   
+UPPER_LIMIT_2  . . . . . . . . .	Number	 -00000001h   
 VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
 VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
 VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
@@ -676,17 +939,30 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
+avg2 . . . . . . . . . . . . . .	DWord	 00000370 _DATA	
+avg  . . . . . . . . . . . . . .	DWord	 0000036C _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
+colon  . . . . . . . . . . . . .	Byte	 000001C5 _DATA	
+count  . . . . . . . . . . . . .	DWord	 00000374 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-equalSymbol  . . . . . . . . . .	Byte	 000000C3 _DATA	
+decimalPart  . . . . . . . . . .	DWord	 00000384 _DATA	
+decimal  . . . . . . . . . . . .	Byte	 000001C8 _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-firstNumString . . . . . . . . .	Byte	 0000008D _DATA	
-goodbye  . . . . . . . . . . . .	Byte	 000000EF _DATA	
+explPnt  . . . . . . . . . . . .	Byte	 000001C2 _DATA	
+extraCredit1 . . . . . . . . . .	Byte	 00000037 _DATA	
+extraCredit2 . . . . . . . . . .	Byte	 00000094 _DATA	
+getUserName  . . . . . . . . . .	Byte	 000001A1 _DATA	
+goodbyeMsg . . . . . . . . . . .	Byte	 00000304 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-instructions . . . . . . . . . .	Byte	 00000036 _DATA	
+greetUser  . . . . . . . . . . .	Byte	 000001BA _DATA	
+inputNum . . . . . . . . . . . .	DWord	 0000035C _DATA	
+instruct1  . . . . . . . . . . .	Byte	 000000ED _DATA	
+instruct2  . . . . . . . . . . .	Byte	 0000013F _DATA	
+intPart  . . . . . . . . . . . .	DWord	 0000037C _DATA	
+invalidNeg . . . . . . . . . . .	Byte	 00000250 _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -694,22 +970,26 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-minusSymbol  . . . . . . . . . .	Byte	 000000BF _DATA	
-num1 . . . . . . . . . . . . . .	DWord	 000000C7 _DATA	
-num2 . . . . . . . . . . . . . .	DWord	 000000CB _DATA	
-num3 . . . . . . . . . . . . . .	DWord	 000000CF _DATA	
-plusSymbol . . . . . . . . . . .	Byte	 000000BB _DATA	
+max  . . . . . . . . . . . . . .	DWord	 00000360 _DATA	
+min  . . . . . . . . . . . . . .	DWord	 00000364 _DATA	
+noValidNums  . . . . . . . . . .	Byte	 00000289 _DATA	
+oneHundred . . . . . . . . . . .	DWord	 00000380 _DATA	
 programTitle . . . . . . . . . .	Byte	 00000000 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-result1  . . . . . . . . . . . .	DWord	 000000D3 _DATA	
-result2  . . . . . . . . . . . .	DWord	 000000D7 _DATA	
-result3  . . . . . . . . . . . .	DWord	 000000DB _DATA	
-result4  . . . . . . . . . . . .	DWord	 000000DF _DATA	
-result5  . . . . . . . . . . . .	DWord	 000000E3 _DATA	
-result6  . . . . . . . . . . . .	DWord	 000000E7 _DATA	
-result7  . . . . . . . . . . . .	DWord	 000000EB _DATA	
-secondNumString  . . . . . . . .	Byte	 0000009C _DATA	
-thirdNumString . . . . . . . . .	Byte	 000000AC _DATA	
+resultAvg  . . . . . . . . . . .	Byte	 000002E1 _DATA	
+resultDec  . . . . . . . . . . .	Byte	 000002F3 _DATA	
+resultMax  . . . . . . . . . . .	Byte	 000002CD _DATA	
+resultMin  . . . . . . . . . . .	Byte	 000002D7 _DATA	
+resultMsg1 . . . . . . . . . . .	Byte	 000002AB _DATA	
+resultMsg2 . . . . . . . . . . .	Byte	 000002B8 _DATA	
+resultSum  . . . . . . . . . . .	Byte	 000002C7 _DATA	
+rmd  . . . . . . . . . . . . . .	DWord	 00000378 _DATA	
+sum  . . . . . . . . . . . . . .	DWord	 00000368 _DATA	
+userInputMsg1  . . . . . . . . .	Byte	 000001CA _DATA	
+userInputMsg2  . . . . . . . . .	Byte	 00000205 _DATA	
+userInput  . . . . . . . . . . .	Byte	 00000249 _DATA	
+userNameBytes  . . . . . . . . .	DWord	 00000344 _DATA	
+userName . . . . . . . . . . . .	Byte	 00000348 _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
