@@ -1,22 +1,21 @@
-Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/26/24 11:25:23
-;A More Advanced Arithmetic Program     (Proj3_greenede.asm  Page 1 - 1
+Microsoft (R) Macro Assembler Version 14.39.33523.0	    05/20/24 21:24:06
+2A Random Number Generator     (Proj4_greenede.asm	     Page 1 - 1
 
 
-				TITLE A More Advanced Arithmetic Program     (Proj3_greenede.asm)
+				TITLE A Random Number Generator     (Proj4_greenede.asm)
 
 				; Author: Derek Greene
-				; Last Modified: 4/24/2024
+				; Last Modified: 5/20/2024
 				; OSU email address: greenede@oregonstate.edu
 				; Course number/section:   CS271 Section [400]
-				; Project Number: 3                Due Date: 5/5/24
-				; Description: Program displays title and programmers name, followed by getting the user name and greeting
-				;              the user. The program then will prompt the user repeatedly to input a number.
-				;              Program validates user input in range [-200,-100] OR [-50,-1] (inclusive).
-				;              Program will alert user of any out of range negative numbers.
-				;              Program will store the number of valid inputs entered and calculate the valid input values.
-				;              Program will number each line of user input and increment the line number for valid input only.
-				;              Program will then calculate the rounded integer average of the valid inputs and store in a variable.
-				;              Program will display the number of valid inputs, the sum, max, min, rounded average, decimal-point-number, and a goodbye message.
+				; Project Number: 5                Due Date: 5/26/24
+				; Description: Program displays title and programmers name, followed by an introduction explaining the
+				;              program. Program then generates 200 random numbers in range [15,50] (inclusive), converts them
+				;              to their ascii representation, directly and then writes them direectly into a text file.
+				;              These numbers are then read back into an ascii array which is then parsed into a decimal array. 
+				;              The unsorted random numbers are displayed first (ascii array) followed by the sorted numbers, 
+				;              and then the medium value of the array, followed by the number of instances fo reach value generated
+				;              in ascending order of instances. Numbers are displayed 20 per row. Program then displays goodbye message. 
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -37,476 +36,990 @@ Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/26/24 11:25:23
 			      C .LIST
 			      C 
 
-				; constant definitions for range [-200,-100] & [-50,-1]
- =-000000C8			LOWER_LIMIT_1 = -200
- =-00000032			LOWER_LIMIT_2 = -50
- =-00000064			UPPER_LIMIT_1 = -100
- =-00000001			UPPER_LIMIT_2 = -1
+				; constant definitions for range [15,50]
+ = 0000000F			LO = 15
+ = 00000032			HI = 50
+ = 000000C8			ARRAY_SIZE = 200
 
  00000000			.data
 
- 00000000 41 20 4D 6F 72	programTitle        BYTE    "A More Advanced Arithmetic Program     by Derek Greene",0
-	   65 20 41 64 76
-	   61 6E 63 65 64
-	   20 41 72 69 74
-	   68 6D 65 74 69
-	   63 20 50 72 6F
-	   67 72 61 6D 20
-	   20 20 20 20 62
-	   79 20 44 65 72
-	   65 6B 20 47 72
-	   65 65 6E 65 00
- 00000037 2A 2A 45 43 3A	extraCredit1        BYTE    "**EC: Program numbers each line of input, incrementing the line number for each valid input.",0
-	   20 50 72 6F 67
-	   72 61 6D 20 6E
+ 00000000 41 20 52 61 6E	programTitle        BYTE    "A Random Number Generator     by Derek Greene",0
+	   64 6F 6D 20 4E
 	   75 6D 62 65 72
-	   73 20 65 61 63
-	   68 20 6C 69 6E
-	   65 20 6F 66 20
-	   69 6E 70 75 74
-	   2C 20 69 6E 63
-	   72 65 6D 65 6E
-	   74 69 6E 67 20
-	   74 68 65 20 6C
-	   69 6E 65 20 6E
+	   20 47 65 6E 65
+	   72 61 74 6F 72
+	   20 20 20 20 20
+	   62 79 20 44 65
+	   72 65 6B 20 47
+	   72 65 65 6E 65
+	   00
+ 0000002E 2A 2A 45 43 3A	extraCredit1        BYTE    "**EC: Random numbers are generated into a file and then read into an array.",0
+	   20 52 61 6E 64
+	   6F 6D 20 6E 75
+	   6D 62 65 72 73
+	   20 61 72 65 20
+	   67 65 6E 65 72
+	   61 74 65 64 20
+	   69 6E 74 6F 20
+	   61 20 66 69 6C
+	   65 20 61 6E 64
+	   20 74 68 65 6E
+	   20 72 65 61 64
+	   20 69 6E 74 6F
+	   20 61 6E 20 61
+	   72 72 61 79 2E
+	   00
+ 0000007A 2A 2A 4A 75 73	extra1              BYTE    "**Just for fun the numbers are converted to ASCII so you can view them in the file created,",0
+	   74 20 66 6F 72
+	   20 66 75 6E 20
+	   74 68 65 20 6E
 	   75 6D 62 65 72
-	   20 66 6F 72 20
-	   65 61 63 68 20
-	   76 61 6C 69 64
-	   20 69 6E 70 75
-	   74 2E 00
- 00000094 2A 2A 45 43 3A	extraCredit2        BYTE    "**EC: Program calculates the average as a decimal-point-number, rounded to nearest 0.01.",0
-	   20 50 72 6F 67
-	   72 61 6D 20 63
-	   61 6C 63 75 6C
-	   61 74 65 73 20
-	   74 68 65 20 61
-	   76 65 72 61 67
-	   65 20 61 73 20
-	   61 20 64 65 63
-	   69 6D 61 6C 2D
-	   70 6F 69 6E 74
-	   2D 6E 75 6D 62
-	   65 72 2C 20 72
-	   6F 75 6E 64 65
-	   64 20 74 6F 20
-	   6E 65 61 72 65
-	   73 74 20 30 2E
-	   30 31 2E 00
- 000000ED 54 68 69 73 20	instruct1           BYTE    "This program allows for the input of negative numbers within the specified range.",0
-	   70 72 6F 67 72
-	   61 6D 20 61 6C
-	   6C 6F 77 73 20
-	   66 6F 72 20 74
-	   68 65 20 69 6E
-	   70 75 74 20 6F
-	   66 20 6E 65 67
-	   61 74 69 76 65
-	   20 6E 75 6D 62
-	   65 72 73 20 77
-	   69 74 68 69 6E
+	   73 20 61 72 65
+	   20 63 6F 6E 76
+	   65 72 74 65 64
+	   20 74 6F 20 41
+	   53 43 49 49 20
+	   73 6F 20 79 6F
+	   75 20 63 61 6E
+	   20 76 69 65 77
+	   20 74 68 65 6D
+	   20 69 6E 20 74
+	   68 65 20 66 69
+	   6C 65 20 63 72
+	   65 61 74 65 64
+	   2C 00
+ 000000D6 2A 2A 74 68 65	extra2              BYTE    "**then they are read back from the file and into an array of ASCII characters!",0
+	   6E 20 74 68 65
+	   79 20 61 72 65
+	   20 72 65 61 64
+	   20 62 61 63 6B
+	   20 66 72 6F 6D
 	   20 74 68 65 20
-	   73 70 65 63 69
-	   66 69 65 64 20
-	   72 61 6E 67 65
-	   2E 00
- 0000013F 54 68 65 20 6D	instruct2           BYTE    "The min, max, average, sum, number of inputs, & decimal-number are then calculated and displayed.",0
-	   69 6E 2C 20 6D
-	   61 78 2C 20 61
-	   76 65 72 61 67
-	   65 2C 20 73 75
-	   6D 2C 20 6E 75
-	   6D 62 65 72 20
-	   6F 66 20 69 6E
-	   70 75 74 73 2C
-	   20 26 20 64 65
-	   63 69 6D 61 6C
-	   2D 6E 75 6D 62
-	   65 72 20 61 72
-	   65 20 74 68 65
-	   6E 20 63 61 6C
-	   63 75 6C 61 74
-	   65 64 20 61 6E
-	   64 20 64 69 73
-	   70 6C 61 79 65
-	   64 2E 00
- 000001A1 50 6C 65 61 73	getUserName         BYTE    "Please enter your name: ",0
-	   65 20 65 6E 74
-	   65 72 20 79 6F
-	   75 72 20 6E 61
-	   6D 65 3A 20 00
- 000001BA 48 65 6C 6C 6F	greetUser           BYTE    "Hello, ",0
-	   2C 20 00
- 000001C2 21 20 00		explPnt             BYTE    "! ",0
- 000001C5 3A 20 00		colon               BYTE    ": ",0
- 000001C8 2E 00			decimal             BYTE    ".",0
- 000001CA 50 6C 65 61 73	userInputMsg1       BYTE    "Please enter integers in the range [-200,-100] or [-50,-1]",0
-	   65 20 65 6E 74
-	   65 72 20 69 6E
-	   74 65 67 65 72
+	   66 69 6C 65 20
+	   61 6E 64 20 69
+	   6E 74 6F 20 61
+	   6E 20 61 72 72
+	   61 79 20 6F 66
+	   20 41 53 43 49
+	   49 20 63 68 61
+	   72 61 63 74 65
+	   72 73 21 00
+ 00000125 54 68 69 73 20	instruct1           BYTE    "This program generates 200 random numbers in the range [15,50].",0
+	   70 72 6F 67 72
+	   61 6D 20 67 65
+	   6E 65 72 61 74
+	   65 73 20 32 30
+	   30 20 72 61 6E
+	   64 6F 6D 20 6E
+	   75 6D 62 65 72
 	   73 20 69 6E 20
 	   74 68 65 20 72
 	   61 6E 67 65 20
-	   5B 2D 32 30 30
-	   2C 2D 31 30 30
-	   5D 20 6F 72 20
-	   5B 2D 35 30 2C
-	   2D 31 5D 00
- 00000205 57 68 65 6E 20	userInputMsg2       BYTE    "When you're done, enter a non-negative number to calculate results.",0
-	   79 6F 75 27 72
-	   65 20 64 6F 6E
-	   65 2C 20 65 6E
-	   74 65 72 20 61
-	   20 6E 6F 6E 2D
-	   6E 65 67 61 74
-	   69 76 65 20 6E
-	   75 6D 62 65 72
-	   20 74 6F 20 63
-	   61 6C 63 75 6C
-	   61 74 65 20 72
-	   65 73 75 6C 74
-	   73 2E 00
- 00000249 49 6E 70 75 74	userInput           BYTE    "Input ",0
-	   20 00
- 00000250 49 4E 56 41 4C	invalidNeg          BYTE    "INVALID: number is not in range [-200,-100] or [-50,-1].",0
-	   49 44 3A 20 6E
-	   75 6D 62 65 72
-	   20 69 73 20 6E
-	   6F 74 20 69 6E
-	   20 72 61 6E 67
-	   65 20 5B 2D 32
-	   30 30 2C 2D 31
-	   30 30 5D 20 6F
-	   72 20 5B 2D 35
-	   30 2C 2D 31 5D
+	   5B 31 35 2C 35
+	   30 5D 2E 00
+ 00000165 4E 75 6D 62 65	instruct2           BYTE    "Numbers generated are then displayed without sorting followed by with sorting, then the median value,",0
+	   72 73 20 67 65
+	   6E 65 72 61 74
+	   65 64 20 61 72
+	   65 20 74 68 65
+	   6E 20 64 69 73
+	   70 6C 61 79 65
+	   64 20 77 69 74
+	   68 6F 75 74 20
+	   73 6F 72 74 69
+	   6E 67 20 66 6F
+	   6C 6C 6F 77 65
+	   64 20 62 79 20
+	   77 69 74 68 20
+	   73 6F 72 74 69
+	   6E 67 2C 20 74
+	   68 65 6E 20 74
+	   68 65 20 6D 65
+	   64 69 61 6E 20
+	   76 61 6C 75 65
+	   2C 00
+ 000001CB 61 6E 64 20 66	instruct3           BYTE    "and finally the number of instances that each occur are displayed.",0
+	   69 6E 61 6C 6C
+	   79 20 74 68 65
+	   20 6E 75 6D 62
+	   65 72 20 6F 66
+	   20 69 6E 73 74
+	   61 6E 63 65 73
+	   20 74 68 61 74
+	   20 65 61 63 68
+	   20 6F 63 63 75
+	   72 20 61 72 65
+	   20 64 69 73 70
+	   6C 61 79 65 64
 	   2E 00
- 00000289 45 52 52 4F 52	noValidNums         BYTE    "ERROR: no valid integers entered!",0
-	   3A 20 6E 6F 20
-	   76 61 6C 69 64
-	   20 69 6E 74 65
-	   67 65 72 73 20
-	   65 6E 74 65 72
-	   65 64 21 00
- 000002AB 59 6F 75 20 65	resultMsg1          BYTE    "You entered ",0
-	   6E 74 65 72 65
-	   64 20 00
- 000002B8 20 76 61 6C 69	resultMsg2          BYTE    " valid numbers",0
-	   64 20 6E 75 6D
-	   62 65 72 73 00
- 000002C7 53 75 6D 3A 20	resultSum           BYTE    "Sum: ",0
+ 0000020E 55 6E 73 6F 72	unsortRand          BYTE    "Unsorted:",0
+	   74 65 64 3A 00
+ 00000218 53 6F 72 74 65	sortRand            BYTE    "Sorted:",0
+	   64 3A 00
+ 00000220 4D 65 64 69 61	medValue            BYTE    "Median Value: ",0
+	   6E 20 56 61 6C
+	   75 65 3A 20 00
+ 0000022F 49 6E 73 74 61	numInstan           BYTE    "Instances of each number generated:",0
+	   6E 63 65 73 20
+	   6F 66 20 65 61
+	   63 68 20 6E 75
+	   6D 62 65 72 20
+	   67 65 6E 65 72
+	   61 74 65 64 3A
 	   00
- 000002CD 4D 61 78 69 6D	resultMax           BYTE    "Maximum: ",0
-	   75 6D 3A 20 00
- 000002D7 4D 69 6E 69 6D	resultMin           BYTE    "Minimum: ",0
-	   75 6D 3A 20 00
- 000002E1 52 6F 75 6E 64	resultAvg           BYTE    "Rounded Average: ",0
-	   65 64 20 41 76
-	   65 72 61 67 65
-	   3A 20 00
- 000002F3 44 65 63 69 6D	resultDec           BYTE    "Decimal-Number: ",0
-	   61 6C 2D 4E 75
-	   6D 62 65 72 3A
-	   20 00
- 00000304 54 68 61 6E 6B	goodbyeMsg          BYTE    "Thanks for using A more Advanced Arithemetic Program! Goodbye, ",0
+ 00000253 54 68 61 6E 6B	goodbyeMsg          BYTE    "Thanks for using A Random Number Generator by Derek Greene, Goodbye!",0
 	   73 20 66 6F 72
 	   20 75 73 69 6E
-	   67 20 41 20 6D
-	   6F 72 65 20 41
-	   64 76 61 6E 63
-	   65 64 20 41 72
-	   69 74 68 65 6D
-	   65 74 69 63 20
-	   50 72 6F 67 72
-	   61 6D 21 20 47
-	   6F 6F 64 62 79
-	   65 2C 20 00
- 00000344 00000000		userNameBytes       DWORD   ?         ; holds number of characters in username
- 00000348  00000014 [		userName            BYTE    20 DUP(0) 
+	   67 20 41 20 52
+	   61 6E 64 6F 6D
+	   20 4E 75 6D 62
+	   65 72 20 47 65
+	   6E 65 72 61 74
+	   6F 72 20 62 79
+	   20 44 65 72 65
+	   6B 20 47 72 65
+	   65 6E 65 2C 20
+	   47 6F 6F 64 62
+	   79 65 21 00
+ 00000298 20			space               BYTE    32
+ 00000299 52 61 6E 64 6F	randNumsFile        BYTE    "Random Number Array.txt",0
+	   6D 20 4E 75 6D
+	   62 65 72 20 41
+	   72 72 61 79 2E
+	   74 78 74 00
+ 000002B1 00000000		fileHandle          DWORD   ?
+ 000002B5  00000258 [		fileBuffer          BYTE    ARRAY_SIZE*3 DUP(?)
 	    00
 	   ]
- 0000035C 00000000		inputNum            SDWORD  ?
- 00000360 FFFFFF38		max                 SDWORD  -200      
- 00000364 00000000		min                 SDWORD  ?
- 00000368 00000000		sum                 SDWORD  ?
- 0000036C 00000000		avg                 SDWORD  ?
- 00000370 00000000		avg2                SDWORD  ?
- 00000374 00000000		count               DWORD   0
- 00000378 00000000		rmd                 DWORD   ?
- 0000037C 00000000		intPart             DWORD   ?
- 00000380 00000000		oneHundred          DWORD   ?
- 00000384 00000000		decimalPart         DWORD   ?
+ 0000050D  00000258 [		randArray           BYTE    ARRAY_SIZE*3 DUP(?)
+	    00
+	   ]
+ 00000765  000000C8 [		decimalArray        DWORD   ARRAY_SIZE DUP(?)
+	    00000000
+	   ]
+ 00000A85  000000C9 [		occArray            DWORD   ARRAY_SIZE+1 DUP(?)
+	    00000000
+	   ]
+ 00000DA9 31			digit1              BYTE    49
+ 00000DAA 32			digit2              BYTE    50
+ 00000DAB 33			digit3              BYTE    51
+ 00000DAC 34			digit4              BYTE    52
+ 00000DAD 35			digit5              BYTE    53
+ 00000DAE 36			digit6              BYTE    54
+ 00000DAF 00			tempAL              BYTE    ?
 
  00000000			.code
- 00000000			main PROC
-				
-				; ----------------------------------------------------------
-				; Displays program title, instructions, and username prompt.
-				; Username input is stored in userName.  
-				; Displays hello message with username
-				; -----------------------------------------------------------
- 00000000  BA 00000000 R	    mov     EDX, OFFSET programTitle
- 00000005  E8 00000000 E	    call    WriteString
- 0000000A  E8 00000000 E	    call    CrLf
- 0000000F  BA 00000037 R	    mov     EDX, OFFSET extraCredit1
- 00000014  E8 00000000 E	    call    WriteString
- 00000019  E8 00000000 E	    call    CrLf
- 0000001E  BA 00000094 R	    mov     EDX, OFFSET extraCredit2
- 00000023  E8 00000000 E	    call    WriteString
- 00000028  E8 00000000 E	    call    CrLf
- 0000002D  BA 000000ED R	    mov     EDX, OFFSET instruct1
+
+				; ----------------------------------------------------
+				; Name: introduction
+				;
+				; Displays program title and description.
+				;
+				; Preconditions: memory addresses of programTitle,
+				; extraCredit1, extra1, extra2, instruct1, instruct2,
+				; instruct3 pushed to the stack before call
+				;
+				; Postconditions: prints title and program description
+				;
+				; Receives: OFFSET of programTitle,
+				; extraCredit1, extra1, extra2, instruct1, instruct2,
+				; instruct3
+				;
+				; Changes Registers: EDX 
+				; -----------------------------------------------------
+ 00000000			introduction    PROC
+ 00000000  55			    push    EBP
+ 00000001  8B EC		    mov     EBP, ESP
+ 00000003  8B 55 20		    mov     EDX, [EBP+32]   ; programTitle
+ 00000006  E8 00000000 E	    call    WriteString
+ 0000000B  E8 00000000 E	    call    CrLf
+ 00000010  E8 00000000 E	    call    CrLf
+ 00000015  8B 55 1C		    mov     EDX, [EBP+28]   ; extraCredit1
+ 00000018  E8 00000000 E	    call    WriteString
+ 0000001D  E8 00000000 E	    call    CrLf
+ 00000022  8B 55 18		    mov     EDX, [EBP+24]   ; extra1
+ 00000025  E8 00000000 E	    call    WriteString
+ 0000002A  E8 00000000 E	    call    CrLf
+ 0000002F  8B 55 14		    mov     EDX, [EBP+20]   ; extra2
  00000032  E8 00000000 E	    call    WriteString
  00000037  E8 00000000 E	    call    CrLf
- 0000003C  BA 0000013F R	    mov     EDX, OFFSET instruct2
- 00000041  E8 00000000 E	    call    WriteString
- 00000046  E8 00000000 E	    call    CrLf
- 0000004B  E8 00000000 E	    call    CrLf
- 00000050  BA 000001A1 R	    mov     EDX, OFFSET getUserName
- 00000055  E8 00000000 E	    call    WriteString
- 0000005A  BA 00000348 R	    mov     EDX, OFFSET userName
- 0000005F  B9 00000014		    mov     ECX, SIZEOF userName
- 00000064  E8 00000000 E	    call    ReadString
- 00000069  A3 00000344 R	    mov     userNameBytes, EAX
- 0000006E  E8 00000000 E	    call    CrLf
- 00000073  BA 000001BA R	    mov     EDX, OFFSET greetUser
- 00000078  E8 00000000 E	    call    WriteString
- 0000007D  BA 00000348 R	    mov     EDX, OFFSET userName
- 00000082  E8 00000000 E	    call    WriteString
- 00000087  BA 000001C2 R	    mov     EDX, OFFSET explPnt
- 0000008C  E8 00000000 E	    call    WriteString
- 00000091  BA 000001CA R	    mov     EDX, OFFSET userInputMsg1
- 00000096  E8 00000000 E	    call    WriteString
- 0000009B  E8 00000000 E	    call    CrLf
- 000000A0  BA 00000205 R	    mov     EDX, OFFSET userInputMsg2
- 000000A5  E8 00000000 E	    call    WriteString
- 000000AA  E8 00000000 E	    call    CrLf
- 000000AF  E8 00000000 E	    call    CrLf
+ 0000003C  E8 00000000 E	    call    CrLf
+ 00000041  8B 55 10		    mov     EDX, [EBP+16]   ; instruct1
+ 00000044  E8 00000000 E	    call    WriteString
+ 00000049  E8 00000000 E	    call    CrLf            
+ 0000004E  8B 55 0C		    mov     EDX, [EBP+12]   ; instruct2
+ 00000051  E8 00000000 E	    call    WriteString
+ 00000056  E8 00000000 E	    call    CrLf
+ 0000005B  8B 55 08		    mov     EDX, [EBP+8]    ; instruct3
+ 0000005E  E8 00000000 E	    call    WriteString
+ 00000063  E8 00000000 E	    call    CrLf
+ 00000068  5D			    pop     EBP
+ 00000069  C2 0018		    ret     24
+ 0000006C			introduction    ENDP
 				
- 000000B4			_getInput:
-				; ---------------------------------------------------------------------------
-				; Displays current line number and requests user input integer.
-				; Displays current line number as count + 1 so line number starts at 1 instead of 0.
-				; ---------------------------------------------------------------------------
- 000000B4  BA 00000249 R	    mov     EDX, OFFSET userInput
- 000000B9  E8 00000000 E	    call    WriteString
- 000000BE  A1 00000374 R	    mov     EAX, count
- 000000C3  83 C0 01		    add     EAX, 1
- 000000C6  E8 00000000 E	    call    WriteDec
- 000000CB  BA 000001C5 R	    mov     EDX, OFFSET colon
- 000000D0  E8 00000000 E	    call    WriteString
- 000000D5  E8 00000000 E	    call    ReadInt
- 000000DA  A3 0000035C R	    mov     inputNum, EAX
+				; ---------------------------------------------------------------------------------
+				; Name: genRandNums
+				;
+				; Generates ARRA_SIZE amount of random numbers, then passes them to sub-procedure
+				; ConverToAscii which converts the values to their ASCII representation. A call is
+				; then made to sub-procedure addToFile which adds each ASCII number to the file
+				; "Random Number Array.txt" seperated by a space char. The file is then closed.
+				;
+				; Preconditions: memory addresses of digit1, digit2, digit3, digit4, digit5, digit6,
+				; space, fileBuffer, randNumsFile, fileHandle pushed to the stack before call
+				;
+				; Postconditions: file created with ASCII array of random numbers
+				;
+				; Receives: OFFSET of digit1, digit2, digit3, digit4, digit5, digit6,
+				; space, fileBuffer, randNumsFile, fileHandle
+				;
+				; Returns: file containing an ASCII array
+				;
+				; Changes Registers: EAX, ECX, EDX, ESI, EDI
+				; ---------------------------------------------------------------------------------
+ 0000006C			genRandNums     PROC
+ 0000006C  55			    push    EBP
+ 0000006D  8B EC		    mov     EBP, ESP
+ 0000006F  8B 55 10		    mov     EDX, [EBP+16]   ; randNumsFile
+ 00000072  E8 00000000 E	    call    CreateOutputFile
+ 00000077  89 06		    mov     [ESI], EAX      ; fileHandle
+ 00000079  B9 000000C8		    mov     ECX, ARRAY_SIZE
+ 0000007E			_numGen:
+ 0000007E  B8 00000032		    mov     EAX, HI
+ 00000083  40			    inc     EAX             ; increment EAX +1 as RandomRange is upper limit exclusive 
+ 00000084  83 E8 0F		    sub     EAX, LO
+ 00000087  E8 00000000 E	    call    RandomRange     
+ 0000008C  83 C0 0F		    add     EAX, LO
+ 0000008F  8B 16		    mov     EDX, [ESI]
+ 00000091  52			    push    EDX
+ 00000092  8B 55 08		    mov     EDX, [EBP+8]    ; fileBuffer
+ 00000095  52			    push    EDX
+ 00000096  8B 55 30		    mov     EDX, [EBP+48]   ; digit6
+ 00000099  52			    push    EDX
+ 0000009A  8B 55 2C		    mov     EDX, [EBP+44]   ; digit5
+ 0000009D  52			    push    EDX
+ 0000009E  8B 55 28		    mov     EDX, [EBP+40]   ; digit4
+ 000000A1  52			    push    EDX
+ 000000A2  8B 55 24		    mov     EDX, [EBP+36]   ; digit3
+ 000000A5  52			    push    EDX
+ 000000A6  8B 55 20		    mov     EDX, [EBP+32]   ; digit2
+ 000000A9  52			    push    EDX
+ 000000AA  8B 55 1C		    mov     EDX, [EBP+28]   ; digit1
+ 000000AD  52			    push    EDX
+ 000000AE  E8 0000001F		    call    ConvertToAscii
+ 000000B3  8B 55 18		    mov     EDX, [EBP+24]   ; space
+ 000000B6  52			    push    EDX
+ 000000B7  88 1F		    mov     [EDI], BL       ; save randomRange num second digit
+ 000000B9  8B 06		    mov     EAX, [ESI]
+ 000000BB  50			    push    EAX
+ 000000BC  8B 45 08		    mov     EAX, [EBP+8]    ; fileBuffer
+ 000000BF  50			    push    EAX
+ 000000C0  E8 000000DD		    call    addToFile
+ 000000C5  E2 B7		    loop    _numGen
+ 000000C7  8B 06		    mov     EAX, [ESI]
+ 000000C9  E8 00000000 E	    call    CloseFile
+ 000000CE  5D			    pop     EBP
+ 000000CF  C2 002C		    ret     44
+ 000000D2			genRandNums     ENDP
 				
+				; ------------------------------------------------------------------------------------
+				; Name: ConvertToAscii
+				;
+				; Sub-procedure of genRandNums, Converts the values generated from call to RandomRange
+				; to ASCII representation seperated by a space char. For each random number, the ASCII
+				; chars are stored in fileBuffer.
+				;
+				; Preconditions: memory addresses of digit1, digit2, digit3, digit4, digit5, digit6,
+				; fileBuffer pushed to stack before call
+				;
+				; Postconditions: Number generated by call to RandomRange is represented as ASCII
+				;
+				; Receives: OFFSET of digit1, digit2, digit3, digit4, digit5, digit6,
+				; space, fileBuffer, randNumsFile, fileHandle, and value from genRandNums (EAX) 
+				;
+				; Returns: ASCII representation of number into fileBuffer
+				;
+				; Changes Registers: EAX, EBX, ECX, EDX
+				; ------------------------------------------------------------------------------------
+ 000000D2			ConvertToAscii  PROC
+ 000000D2  55			    push    EBP
+ 000000D3  8B EC		    mov     EBP, ESP
+ 000000D5  51			    push    ECX
+ 000000D6  83 F8 0A		    cmp     EAX, 10
+ 000000D9  72 02		    jb      _eq1to9
+ 000000DB  EB 0A		    jmp     _eq10to19
+ 000000DD			_eq1to9:
+ 000000DD  83 C0 30		    add     EAX, 48
+ 000000E0  8B D8		    mov     EBX, EAX
+ 000000E2  E9 000000B6		    jmp     _skip
+ 000000E7			_eq10to19:
+ 000000E7  83 F8 13		    cmp     EAX, 19
+ 000000EA  7F 1D		    jg      _eq20to29
+ 000000EC  83 E8 0A		    sub     EAX, 10
+ 000000EF  83 C0 30		    add     EAX, 48
+ 000000F2  8B D8		    mov     EBX, EAX
+ 000000F4  8B 45 24		    mov     EAX, [EBP+36]   ; fileHandle
+ 000000F7  B9 00000001		    mov     ECX, 1
+ 000000FC  8B 55 08		    mov     EDX, [EBP+8]    ; digit1
+ 000000FF  E8 00000000 E	    call    WriteToFile
+ 00000104  E9 00000094		    jmp     _skip
+ 00000109			_eq20to29:
+ 00000109  83 F8 1D		    cmp     EAX, 29
+ 0000010C  7F 1A		    jg      _eq30to39
+ 0000010E  83 E8 14		    sub     EAX, 20
+ 00000111  83 C0 30		    add     EAX, 48
+ 00000114  8B D8		    mov     EBX, EAX
+ 00000116  8B 45 24		    mov     EAX, [EBP+36]   ; fileHandle
+ 00000119  B9 00000001		    mov     ECX, 1
+ 0000011E  8B 55 0C		    mov     EDX, [EBP+12]   ; digit2
+ 00000121  E8 00000000 E	    call    WritetoFile
+ 00000126  EB 75		    jmp     _skip
+ 00000128			_eq30to39:
+ 00000128  83 F8 27		    cmp     EAX, 39
+ 0000012B  7F 1A		    jg      _eq40to49
+ 0000012D  83 E8 1E		    sub     EAX, 30
+ 00000130  83 C0 30		    add     EAX, 48
+ 00000133  8B D8		    mov     EBX, EAX
+ 00000135  8B 45 24		    mov     EAX, [EBP+36]   ; fileHandle
+ 00000138  B9 00000001		    mov     ECX, 1
+ 0000013D  8B 55 10		    mov     EDX, [EBP+16]   ; digit3
+ 00000140  E8 00000000 E	    call    WriteToFile
+ 00000145  EB 56		    jmp     _skip
+ 00000147			_eq40to49:
+ 00000147  83 F8 31		    cmp     EAX, 49
+ 0000014A  7F 1A		    jg      _eq50to59
+ 0000014C  83 E8 28		    sub     EAX, 40
+ 0000014F  83 C0 30		    add     EAX, 48
+ 00000152  8B D8		    mov     EBX, EAX
+ 00000154  8B 45 24		    mov     EAX, [EBP+36]   ; fileHandle
+ 00000157  B9 00000001		    mov     ECX, 1
+ 0000015C  8B 55 14		    mov     EDX, [EBP+20]   ; digit4
+ 0000015F  E8 00000000 E	    call    WriteToFile
+ 00000164  EB 37		    jmp     _skip
+ 00000166			_eq50to59:
+ 00000166  83 F8 3B		    cmp     EAX, 59
+ 00000169  7F 1A		    jg      _eq60to69
+ 0000016B  83 E8 32		    sub     EAX, 50
+ 0000016E  83 C0 30		    add     EAX, 48
+ 00000171  8B D8		    mov     EBX, EAX
+ 00000173  8B 45 24		    mov     EAX, [EBP+36]   ; fileHandle
+ 00000176  B9 00000001		    mov     ECX, 1
+ 0000017B  8B 55 18		    mov     EDX, [EBP+24]   ; digit5
+ 0000017E  E8 00000000 E	    call    WriteToFile
+ 00000183  EB 18		    jmp     _skip
+ 00000185			_eq60to69:
+ 00000185  83 E8 3C		    sub     EAX, 60
+ 00000188  83 C0 30		    add     EAX, 48
+ 0000018B  8B D8		    mov     EBX, EAX
+ 0000018D  8B 45 24		    mov     EAX, [EBP+36]   ; fileHandle
+ 00000190  B9 00000001		    mov     ECX, 1
+ 00000195  8B 55 1C		    mov     EDX, [EBP+28]   ; digit6
+ 00000198  E8 00000000 E	    call    WriteToFile
+ 0000019D			_skip:     
+ 0000019D  59			    pop     ECX
+ 0000019E  5D			    pop     EBP
+ 0000019F  C2 0020		    ret     32
+ 000001A2			ConvertToAscii  ENDP
+				
+				; ------------------------------------------------------------------------------------
+				; Name: addToFile
+				;
+				; Sub-procedure of genRandNums, writes values to ASCII file.
+				;
+				; Preconditions: memory addresses of fileHandle, space, fileBuffer pushed to stack 
+				; before call
+				;
+				; Postconditions: ASCII value written to file
+				;
+				; Receives: fileHandle, OFFSET of space, and ASCII value to be written
+				;
+				; Returns: ASCII value written to file "Random Number Array.txt"
+				;
+				; Changes Registers: EAX, ECX, EDX
+				; ---------------------------------------------------------------------------------
+ 000001A2			addToFile   PROC
+ 000001A2  55			    push    EBP
+ 000001A3  8B EC		    mov     EBP, ESP
+ 000001A5  51			    push    ECX
+ 000001A6  8B 45 0C		    mov     EAX, [EBP+12]   ; fileHandle
+ 000001A9  8B 55 08		    mov     EDX, [EBP+8]    ; fileBuffer
+ 000001AC  B9 00000001		    mov     ECX, 1
+ 000001B1  E8 00000000 E	    call    WriteToFile
+ 000001B6  8B 45 0C		    mov     EAX, [EBP+12]   ; fileHandle
+ 000001B9  8B 55 10		    mov     EDX, [EBP+16]   ; spaceChar
+ 000001BC  B9 00000001		    mov     ECX, 1
+ 000001C1  E8 00000000 E	    call    WriteToFile
+ 000001C6  59			    pop     ECX
+ 000001C7  5D			    pop     EBP
+ 000001C8  C2 000C		    ret     12
+ 000001CB			addToFile ENDP
+
+				; ------------------------------------------------------------------------------------
+				; Name: addToArray
+				;
+				; Opens file "Random Number Array.txt" and reads each byte, one byte at a time, keeping
+				; a count of how many bytes are read before encountering a space char. Upon encountering
+				; a space char, the (count) amount of bytes is then read into the ASCII array. This is
+				; necessary to handle 1 vs 2 digit numbers (1 vs 2 BYTE) ASCII chars. 
+				;
+				; Preconditions: memory address of randNumsFile, fileBuffer, fileHandle, randArray
+				; pushed to stack before call
+				;
+				; Postconditions: contents of file "Random Number Array.txt" are read into array randArray
+				;
+				; Receives: OFFSET of randNumsFile, fileBuffer, fileHandle, randArray
+				;
+				; Returns: array randArray filled with ASCII values
+				;
+				; Changes Registers: EAX, EBX, ECX, EDX, EDI, ESI
 				; ----------------------------------------------------------------------------------
-				; Validate inputs. If input is out or range, out-of-range message will be displayed.
-				; If input is positive, program will display results, goodbye message, and end.
-				; If no valid intput, program will display error message, goodbye message, and end.
-				; ----------------------------------------------------------------------------------
+ 000001CB			addToArray  PROC
+ 000001CB  55			    push    EBP
+ 000001CC  8B EC		    mov     EBP, ESP    
+ 000001CE  8B 55 08		    mov     EDX, [EBP+8]        ; randNumsFile
+ 000001D1  E8 00000000 E	    call    OpenInputFile
+ 000001D6  89 45 FC		    mov     [EBP-4], EAX
+ 000001D9  8B 55 0C		    mov     EDX, [EBP+12]       ; read file content into fileBuffer
+ 000001DC  B9 00000320		    mov     ECX, ARRAY_SIZE*4
+ 000001E1  E8 00000000 E	    call    ReadFromFile
+ 000001E6  8B 75 0C		    mov     ESI, [EBP+12]       ; fileBuffer
+ 000001E9  8B 7D 10		    mov     EDI, [EBP+16]       ; randArray
+ 000001EC  33 DB		    xor     EBX, EBX            
+ 000001EE  B9 00000320		    mov     ECX, ARRAY_SIZE*4   ; num bytes to read into AL
+ 000001F3  8B 55 14		    mov     EDX, [EBP+20]       ; tempAL
+ 000001F6			_parseLoop:
+ 000001F6  8A 06		    mov     AL, [ESI]           ; load current byte from fileBuffer
+ 000001F8  51			    push    ECX
+ 000001F9  B9 00000001		    mov     ECX, 1          
+ 000001FE  59			    pop     ECX
+ 000001FF  88 07		    mov     [EDI], AL           ; atore number in randArray
+ 00000201  83 C7 01		    add     EDI, TYPE BYTE
+ 00000204			_skipStore:
+ 00000204  33 DB		    xor     EBX, EBX            ; reset EBX for next number
+ 00000206  46			    inc     ESI
+ 00000207  E2 ED		    loop    _parseLoop
+ 00000209			_endParse:
+ 00000209  5D			    pop     EBP
+ 0000020A  C2 0010		    ret     16
+ 0000020D			addToArray ENDP
 				
-				; validate input for negative integers. If positive, jmp to calculate results else exit loop
- 000000DF  B8 00000000		    mov     EAX, 0              ; set EAX to 0 in order to correctly set the sign flag in next cmp instruction (inputNum - EAX) 
- 000000E4  39 05 0000035C R	    cmp     inputNum, EAX
- 000000EA  79 73		    jns      _exitLoop          ; jmp if sign flag = 0 (positive result)
+				; ------------------------------------------------------------------------------------
+				; Name: printUnsArray
+				;
+				; Iterates through the unsorted ASCII array of random numbers generated keeping track
+				; of how many bytes before a space char is encountered, and how many numbers (not digits)
+				; are printed. Each time 20 numbers have been printed, a new line is printed. 
+				;
+				; Preconditions: memory address of randArray pushed to stack before call
+				;
+				; Postconditions: prints array of unsorted random numbers randArray
+				;
+				; Receives: OFFSET of randArray
+				;
+				; Changes Registers: EAX, EBX, ECX, EDX, ESI
+				; ----------------------------------------------------------------------------------------
+ 0000020D			printUnsArray  PROC
+ 0000020D  55			    push    EBP
+ 0000020E  8B EC		    mov     EBP, ESP
+ 00000210  8B 75 08		    mov     ESI, [EBP+8]        ; randArray
+ 00000213  B9 00000258		    mov     ECX, ARRAY_SIZE*3
+ 00000218  E8 00000000 E	    call    CrLf
+ 0000021D  BA 00000000		    mov     EDX, 0
+ 00000222			_pArrLoop:
+ 00000222  51			    push    ECX
+ 00000223  83 FA 14		    cmp     EDX, 20
+ 00000226  7D 02		    jge     _newLine
+ 00000228  EB 0A		    jmp     _sameLine
+ 0000022A			_newLine:
+ 0000022A  E8 00000000 E	    call    CrLf
+ 0000022F  BA 00000000		    mov     EDX, 0
+ 00000234			_sameLine:
+ 00000234  8A 04 1E		    mov     AL, [ESI+EBX]   
+ 00000237  E8 00000000 E	    call    WriteChar         
+ 0000023C  83 C3 01		    add     EBX, 1
+ 0000023F  83 C1 01		    add     ECX, 1
+ 00000242  3C 20		    cmp     AL, 32
+ 00000244  75 01		    jne      _noDigit
+ 00000246  42			    inc     EDX
+ 00000247			_noDigit:
+ 00000247  59			    pop     ECX
+ 00000248  E2 D8		    loop    _pArrLoop
+ 0000024A  5D			    pop     EBP
+ 0000024B  C2 0008		    ret     8
+ 0000024E			printUnsArray  ENDP
+				
+				; ------------------------------------------------------------------------------------
+				; Name: convertArray
+				;
+				; Parses ASCII chars in randArray, converting the value of the digits encountered
+				; before a space char occurs into their decimal value. Then adds the decimal value
+				; into an array decimalArray. Each decimal value is added in 4 byte segments.
+				;
+				; Preconditions: memory addresses of randArray, decimalArray pushed to stack before call
+				;
+				; Postconditions: converted array decimalArray from ASCII to decimal
+				;
+				; Receives: OFFSET of randArray, decimalArray
+				;
+				; Returns: decimal array decimalArray
+				;
+				; Changes Registers: EAX, EBX, ECX, EDX, EDI, ESI
+				; ------------------------------------------------------------------------------------
+ 0000024E			convertArray PROC
+ 0000024E  55			    push    EBP
+ 0000024F  8B EC		    mov     EBP, ESP
+ 00000251  BB 00000000		    mov     EBX, 0
+ 00000256  BA 00000000		    mov     EDX, 0
+ 0000025B  BF 00000000		    mov     EDI, 0
+ 00000260  B9 000000C8		    mov     ECX, ARRAY_SIZE
+ 00000265  8B 75 08		    mov     ESI, [EBP+8]                    ; randArray
+ 00000268			_convert:
+ 00000268  B9 00000000		    mov     ECX, 0                          ; initialize char count for current integer
+ 0000026D			_convert2:
+ 0000026D  8A 04 16		    mov     AL, [ESI+EDX]                   ; load current char
+ 00000270  3C 20		    cmp     AL, ' '                         ; check if space
+ 00000272  74 11		    je      _parse           
+ 00000274  3C 00		    cmp     AL, 0                           ; check if end of array
+ 00000276  74 1E		    je      _endConvert     
+ 00000278  2C 30		    sub     AL, '0'                         ; convert ASCII to int
+ 0000027A  6B C9 0A		    imul    ECX, ECX, 10
+ 0000027D  0F B6 D8		    movzx   EBX, AL                         ; zero extend AL to 32 bits in EBX
+ 00000280  03 CB		    add     ECX, EBX
+ 00000282  42			    inc     EDX                             ; move to the next char
+ 00000283  EB E8		    jmp     _convert2        
+ 00000285			_parse:
+ 00000285  52			    push    EDX
+ 00000286  8B 55 0C		    mov     EDX, [EBP+12]                   ; decimalArray
+ 00000289  89 0C BA		    mov     DWORD PTR [EDX+EDI*4], ECX      ; store result in array at index EDI
+ 0000028C  5A			    pop     EDX
+ 0000028D  47			    inc     EDI                             ; increment index for storing integers
+ 0000028E  B9 00000000		    mov     ECX, 0                          ; reset char count
+ 00000293  42			    inc     EDX              
+ 00000294  EB D2		    jmp     _convert         
+ 00000296			_endConvert:
+ 00000296  5D			    pop     EBP
+ 00000297  C2 0004		    ret     4
+ 0000029A			convertArray ENDP
+				
+				; ---------------------------------------------------------------------------------
+				; Name: sortArray
+				;
+				; Sorts decimalArray into ascending order using a bubble sort method. After call to
+				; sortArray, sorted vales overwrite original values of decimalArray. 
+				;
+				; Preconditions: memory address of decimalArray pushed to stack before call
+				;
+				; Postconditions: sorted decimal array decimalArray
+				;
+				; Receives: OFFSET of decimalArray
+				;
+				; Returns: sorted decimal array decimalArray
+				;
+				; Changes Registers: EAX, EBX, ECX, EDX, ESI, EDI
+				; ---------------------------------------------------------------------------------
+ 0000029A			sortArray PROC
+ 0000029A  55			    push    EBP
+ 0000029B  8B EC		    mov     EBP, ESP
+ 0000029D  B9 000000C7		    mov     ECX, ARRAY_SIZE-1           ; number of iterations for the outer loop
+ 000002A2  8B 55 08		    mov     EDX, [EBP+8]                ; decimalArray
+ 000002A5			_outerLoop:
+ 000002A5  BF 00000000		    mov     EDI, 0                      ; initialize index for comparing elements
+ 000002AA  B8 00000000		    mov     EAX, 0                      ; flag to track if any swaps were made
+ 000002AF			_innerLoop:
+ 000002AF  8B DF		    mov     EBX, EDI
+ 000002B1  43			    inc     EBX
+ 000002B2  6B DB 04		    imul    EBX, EBX, 4                 ; multiply by 4 (since each element is 4 bytes)
+ 000002B5  8B 34 BA		    mov     ESI, DWORD PTR [EDX+EDI*4]
+ 000002B8  8B 0C 1A		    mov     ECX, DWORD PTR [EDX+EBX]
+ 000002BB  3B F1		    cmp     ESI, ECX
+ 000002BD  7E 0B		    jle     _noSwap                     ; if ESI <= ECX, no swap
+ 000002BF  89 0C BA		    mov     DWORD PTR [EDX+EDI*4], ECX
+ 000002C2  89 34 1A		    mov     DWORD PTR [EDX+EBX], ESI
+ 000002C5  B8 00000001		    mov     EAX, 1                      ; set the swap flag
+ 000002CA			_noSwap:
+ 000002CA  47			    inc     EDI
+ 000002CB  81 FF 000000C7	    cmp     EDI, ARRAY_SIZE-1
+ 000002D1  7C DC		    jl      _innerLoop                  ; continue inner loop if not end of array
+ 000002D3  83 F8 00		    cmp     EAX, 0
+ 000002D6  75 CD		    jnz     _outerLoop                  ; continue outer loop if swaps were made
+ 000002D8  5D			    pop     EBP
+ 000002D9  C2 0004		    ret     4
+ 000002DC			sortArray ENDP
+				
+				; -----------------------------------------------------------------------------------
+				; Name: printSortArray
+				;
+				; Prints the sorted decimalArray incrementing 4 bytes at a time. Each value is
+				; seperated by a space char by printing the ASCII value 32. A count of how many
+				; numbers printed is kept, after 20 numbers have been printed, a new line is printed.
+				;
+				; Preconditions: memory address of decimalArray pushed to stack before call
+				;
+				; Postconditions: prints array decimalArray of sorted random numbers 
+				;
+				; Receives: OFFSET of decimalArray
+				;
+				; Changes Registers: EAX, ECX, EDX, EDI, ESP
+				; -----------------------------------------------------------------------------------
+ 000002DC			printSortArray PROC
+ 000002DC  55			    push    EBP
+ 000002DD  8B EC		    mov     EBP, ESP
+ 000002DF  83 EC 04		    sub     ESP, 4          
+ 000002E2  B9 000000C8		    mov     ECX, ARRAY_SIZE   
+ 000002E7  8B 7D 08		    mov     EDI, [EBP+8]            ; decimalArray
+ 000002EA  E8 00000000 E	    call    CrLf
+ 000002EF  C7 45 FC		    mov     DWORD PTR [EBP-4], 0    ; initialize local variable to count printed numbers
+	   00000000
+ 000002F6			_loopP:
+ 000002F6  8B 07		    mov     EAX, [EDI]       
+ 000002F8  E8 00000000 E	    call    WriteDec         
+ 000002FD  B8 00000020		    mov     EAX, 32
+ 00000302  E8 00000000 E	    call    WriteChar
+ 00000307  83 C7 04		    add     EDI, 4           
+ 0000030A  FF 45 FC		    inc     DWORD PTR [EBP-4]       ; increment count of printed numbers
+ 0000030D  83 7D FC 14		    cmp     DWORD PTR [EBP-4], 20
+ 00000311  7C 0C		    jl      _continueP
+ 00000313  E8 00000000 E	    call    CrLf             
+ 00000318  C7 45 FC		    mov     DWORD PTR [EBP-4], 0    ; reset count
+	   00000000
+ 0000031F			_continueP:
+ 0000031F  E2 D5		    loop    _loopP
+ 00000321  8B E5		    mov     ESP, EBP        
+ 00000323  5D			    pop     EBP
+ 00000324  C2 0004		    ret     4
+ 00000327			printSortArray ENDP
+				
+				; ---------------------------------------------------------------------------------
+				; Name: findMedian
+				;
+				; Parses decimalArray to calculate the median value. Uses ARRAY_SIZE / 2 to get
+				; middle index and then checks even/odd. If even calcuate avg of two middle
+				; numbers, if odd, median is middle number.
+				;
+				; Preconditions: memory address of decimalArray pushed to stack before call
+				;
+				; Postconditions: printed median value
+				;
+				; Receives: OFFSET of decimalArray
+				;
+				; Returns: median value in EAX
+				;
+				; Changes Registers: EAX, EBX, ECX, EDX
+				; ---------------------------------------------------------------------------------
+ 00000327			findMedian PROC
+ 00000327  55			    push    EBP
+ 00000328  8B EC		    mov     EBP, ESP
+ 0000032A  83 EC 08		    sub     ESP, 8                      
+ 0000032D  B9 000000C8		    mov     ECX, ARRAY_SIZE
+ 00000332  FF 75 08		    push    [EBP+8]                     ; push decimalArray parameter to sortArray
+ 00000335  E8 FFFFFF60		    call    sortArray
+ 0000033A  B8 000000C8		    mov     EAX, ARRAY_SIZE   
+ 0000033F  D1 E8		    shr     EAX, 1                      ; divide / 2 to get  middle index
+ 00000341  89 45 FC		    mov     DWORD PTR [EBP-4], EAX      ; store middle index 
+ 00000344  B8 000000C8		    mov     EAX, ARRAY_SIZE
+ 00000349  83 E0 01		    and     EAX, 1                      ; check if number of elements is odd/even
+ 0000034C  74 0B		    jz      _evenMedian       
+ 0000034E			_oddMedian:                             ; if odd, median is element at middle index
+ 0000034E  8B 45 FC		    mov     EAX, DWORD PTR [EBP-4]
+ 00000351  8B 5D 08		    mov     EBX, DWORD PTR [EBP+8]      ; decimalArray
+ 00000354  8B 04 83		    mov     EAX, DWORD PTR [EBX+EAX*4]  ; load element at middle index
+ 00000357  EB 13		    jmp     _medianFound
+ 00000359			_evenMedian:                            ; if even, get the two middle elements and calculate average
+ 00000359  8B 45 FC		    mov     EAX, DWORD PTR [EBP-4]
+ 0000035C  8B 5D 08		    mov     EBX, DWORD PTR [EBP+8]      ; decimalArray parameter
+ 0000035F  8B 14 83		    mov     EDX, DWORD PTR [EBX+EAX*4]  ; load element at middle index
+ 00000362  48			    dec     EAX
+ 00000363  8B 0C 83		    mov     ECX, DWORD PTR [EBX+EAX*4]  ; load element before middle index
+ 00000366  03 D1		    add     EDX, ECX                    
+ 00000368  D1 FA		    sar     EDX, 1                      ; divide sum / 2 to get average
+ 0000036A  8B C2		    mov     EAX, EDX
+ 0000036C			_medianFound:                           ; return the median value in EAX
+ 0000036C  8B E5		    mov     ESP, EBP
+ 0000036E  5D			    pop     EBP
+ 0000036F  C2 0004		    ret     4                 
+ 00000372			findMedian ENDP
+				
+				; ---------------------------------------------------------------------------------
+				; Name: displayList
+				;
+				; Displays whichever string is passed to it. Used to print the titles of each array
+				; and the median value title. 
+				;
+				; Preconditions:  memory address of string to display pushed to stack before call
+				;
+				; Postconditions: string is displayed followed by a newline
+				;
+				; Receives: EBP+8 - address of the string to be displayed
+				;
+				; Changes Registers: EDX
+				; ---------------------------------------------------------------------------------
+ 00000372			displayList     PROC
+ 00000372  55			    push    EBP
+ 00000373  8B EC		    mov     EBP, ESP
+ 00000375  E8 00000000 E	    call    CrLf
+ 0000037A  8B 54 24 08		    mov     EDX, [ESP+8]        ; whichever string is passed first to the stack before calling procedure
+ 0000037E  E8 00000000 E	    call    WriteString
+ 00000383  5D			    pop     EBP
+ 00000384  C2 0004		    ret     4
+ 00000387			displayList     ENDP
+				
+				; ---------------------------------------------------------------------------------
+				; Name: countOcc
+				;
+				; Parses the decimalArray and keeps a count for each value, of how many times it
+				; occurs, the number of instances is stored in an array occArray.
+				;
+				; Preconditions: memory address of decimalArray, occArray pushed to stack before call
+				;
+				; Postconditions: filled occArray with occurrences of each value
+				;
+				; Receives: OFFSET of decimalArray, occArray
+				;
+				; Returns: filled occArray
+				;
+				; Changes Registers: EAX, ECX, EDX, EDI
+				; ---------------------------------------------------------------------------------
+ 00000387			countOcc PROC
+ 00000387  55			    push    EBP
+ 00000388  8B EC		    mov     EBP, ESP
+ 0000038A  B9 00000032		    mov     ECX, HI                     ; maximum possible value in decimalArray
+ 0000038F  33 FF		    xor     EDI, EDI                    ; clear index register
+ 00000391			_initLoop:
+ 00000391  52			    push    EDX
+ 00000392  8B 55 08		    mov     EDX, [EBP+8]                ;  occArray
+ 00000395  C7 04 BA		    mov     DWORD PTR [EDX+EDI*4], 0    
+	   00000000
+ 0000039C  5A			    pop     EDX
+ 0000039D  47			    inc     EDI
+ 0000039E  E2 F1		    loop    _initLoop                   ; count occurrences of each number in decimalArray                   
+ 000003A0  B9 000000C8		    mov     ECX, ARRAY_SIZE    
+ 000003A5  BF 00000000		    mov     EDI, 0                      ; initialize index for decimalArray
+ 000003AA			_countLoop:
+ 000003AA  52			    push    EDX
+ 000003AB  8B 55 0C		    mov     EDX, [EBP+12]               ; decimalArray
+ 000003AE  8B 04 BA		    mov     EAX, DWORD PTR [EDX+EDI*4]  ; load current number
+ 000003B1  5A			    pop     EDX
+ 000003B2  52			    push    EDX
+ 000003B3  8B 55 08		    mov     EDX, [EBP+8]                ; occArray
+ 000003B6  FF 04 82		    inc     DWORD PTR [EDX+EAX*4]       
+ 000003B9  5A			    pop     EDX
+ 000003BA  47			    inc     EDI                         ; move to next element in decimalArray
+ 000003BB  E2 ED		    loop    _countLoop
+ 000003BD  5D			    pop     EBP
+ 000003BE  C3			    ret
+ 000003BF			countOcc ENDP
+				
+				; --------------------------------------------------------------------------------------
+				; Name: printOcc
+				;
+				; Prints each element that is not 0 as countOcc records 0 for values not in decimalArray.
+				; Instances are printed seperated by a space char by moving ASCII char 32 into EAX
+				; before calling WriteChar. A count of how many instances printed is kept, after 20
+				; printed, a new line is printed. 
+				;
+				; Preconditions: memory address of occArray pushed to stack before call
+				;
+				; Postconditions: prints occurrences of each value in the occurance array occArray
+				;
+				; Receives: OFFSET of occArray
+				;
+				; Changes Registers: EAX, ECX, EDX, ESI
+				; --------------------------------------------------------------------------------------
+ 000003BF			printOcc PROC
+ 000003BF  55			    push    EBP
+ 000003C0  8B EC		    mov     EBP, ESP
+ 000003C2  BA 00000000		    mov     EDX, 0
+ 000003C7  B9 00000033		    mov     ECX, HI + 1             ; number of elements in the occurrences array
+ 000003CC  8B 75 08		    mov     ESI, DWORD PTR [EBP+8]  ; get the address of the occurrences array
+ 000003CF  E8 00000000 E	    call    CrLf
+ 000003D4			_printLoop:
+ 000003D4  83 3E 00		    cmp     DWORD PTR [ESI], 0  
+ 000003D7  74 25		    je      _skipPrint3
+ 000003D9  83 FA 14		    cmp     EDX, 20
+ 000003DC  7D 02		    jge     _newLinee
+ 000003DE  EB 0A		    jmp     _sameLinee
+ 000003E0			_newLinee:
+ 000003E0  E8 00000000 E	    call    CrLf
+ 000003E5  BA 00000000		    mov     EDX, 0
+ 000003EA			_sameLinee:
+ 000003EA  8B 06		    mov     EAX, [ESI]
+ 000003EC  E8 00000000 E	    call    WriteDec
+ 000003F1  42			    inc     EDX
+ 000003F2  52			    push    EDX
+ 000003F3  B8 00000020		    mov     EAX, 32                 ; ascii space char
+ 000003F8  E8 00000000 E	    call    WriteChar
+ 000003FD  5A			    pop     EDX
+ 000003FE			_skipPrint3:
+ 000003FE  83 C6 04		    add     ESI, 4               
+ 00000401  E2 D1		    loop    _printLoop
+ 00000403  E8 00000000 E	    call    CrLf
+ 00000408  E8 00000000 E	    call    CrLf
+ 0000040D  5D			    pop     EBP
+ 0000040E  C2 0004		    ret     4
+ 00000411			printOcc ENDP
+				
+				; ---------------------------------------------------------------------------------
+				; Name: goodBye
+				;
+				; Displays goodbye message then invokes ExitProcess
+				;
+				; Preconditions: memory address of goodbyeMsg pushed to stack before call
+				;
+				; Postconditions: Displays a goodbye message to the user and terminates the program.
+				;
+				; Receives: OFFSET of goodbyeMsg
+				;
+				; Changes Registers: EDX
+				; ---------------------------------------------------------------------------------
+ 00000411			goodBye     PROC
+ 00000411  55			    push    EBP
+ 00000412  8B EC		    mov     EBP, ESP
+ 00000414  8B 55 08		    mov     EDX, [EBP+8]        ; goodbyeMsg
+ 00000417  E8 00000000 E	    call    WriteString
+ 0000041C  E8 00000000 E	    call    CrLf
+				    Invoke ExitProcess,0	    ; exit to operating system
+ 00000421  6A 00	   *	    push   +000000000h
+ 00000423  E8 00000000 E   *	    call   ExitProcess
+ 00000428			goodBye     ENDP
 
-				; validate input for lower end of first range n >= -200. If n < -200, jmp to invalidNegMsg
- 000000EC  A1 0000035C R	    mov     EAX, inputNum
- 000000F1  3D FFFFFF38		    cmp     EAX, LOWER_LIMIT_1
- 000000F6  7C 13		    jl      _invalidNegMsg      ; jmp if input < -200 (out of bounds)
+ 00000428			main PROC
+ 00000428  68 00000000 R	    push    OFFSET programTitle
+ 0000042D  68 0000002E R	    push    OFFSET extraCredit1
+ 00000432  68 0000007A R	    push    OFFSET extra1
+ 00000437  68 000000D6 R	    push    OFFSET extra2
+ 0000043C  68 00000125 R	    push    OFFSET instruct1
+ 00000441  68 00000165 R	    push    OFFSET instruct2
+ 00000446  68 000001CB R	    push    OFFSET instruct3
 				
-				; validate input for upper end of first range n <= -100. If n > -100, check if input fits within 2nd range [-50, -1]
- 000000F8  83 F8 9C		    cmp     EAX, UPPER_LIMIT_1
- 000000FB  7F 02		    jg      _continue           ; jmp if input > -100 (out of bounds)
- 000000FD  EB 22		    jmp     _valid              
+				;---------------------------------------------------
+				; Displays program title and description of program
+				;---------------------------------------------------
+ 0000044B  E8 FFFFFBB0		    call    introduction
+ 00000450  E8 00000000 E	    call    Randomize           ; generate random seed
+ 00000455  68 00000DAE R	    push    OFFSET digit6
+ 0000045A  68 00000DAD R	    push    OFFSET digit5
+ 0000045F  68 00000DAC R	    push    OFFSET digit4
+ 00000464  68 00000DAB R	    push    OFFSET digit3
+ 00000469  68 00000DAA R	    push    OFFSET digit2
+ 0000046E  68 00000DA9 R	    push    OFFSET digit1
+ 00000473  68 00000298 R	    push    OFFSET space
+ 00000478  BF 000002B5 R	    mov     EDI, OFFSET fileBuffer
+ 0000047D  57			    push    EDI
+ 0000047E  68 00000299 R	    push    OFFSET randNumsFile
+ 00000483  BE 000002B1 R	    mov     ESI, OFFSET fileHandle
+ 00000488  56			    push    ESI
+ 00000489  68 000002B5 R	    push    OFFSET fileBuffer
 				
-				; validate input for lower end of second range n >= -50. If n < -50, jmp to invalidNegMsg
- 000000FF			_continue:
- 000000FF  83 F8 CE		    cmp     EAX, LOWER_LIMIT_2
- 00000102  7C 07		    jl      _invalidNegMsg      ; jmp if input < -50 (out of bounds)
+				;-----------------------------------------------
+				; Generates ARRAY_SIZE amount of random numbers
+				; Nums get converted to ASCII and wrote to file
+				;-----------------------------------------------
+ 0000048E  E8 FFFFFBD9		    call    genRandNums
+ 00000493  68 00000DAF R	    push    OFFSET tempAL
+ 00000498  68 0000050D R	    push    OFFSET randArray       
+ 0000049D  68 000002B5 R	    push    OFFSET fileBuffer
+ 000004A2  68 00000299 R	    push    OFFSET randNumsFile
 				
-				; validate input for upper end of second range n <= -1. If n > -1, jmp to invalidNegMsg
- 00000104  83 F8 FF		    cmp     EAX, UPPER_LIMIT_2
- 00000107  7F 02		    jg      _invalidNegMsg      ; jmp if input > -1 (out of bounds)
- 00000109  EB 16		    jmp     _valid              ;
-
-				; display invalidNegMsg
- 0000010B			_invalidNegMsg:
- 0000010B  E8 00000000 E	    call    CrlF
- 00000110  BA 00000250 R	    mov     EDX, OFFSET invalidNeg
- 00000115  E8 00000000 E	    call    WriteString
- 0000011A  E8 00000000 E	    call    CrlF
- 0000011F  EB 93		    jmp     _getInput           ; return back to input loop after displaying invalidNeg message
+				;------------------------------------------------
+				; Reads ASCII nums from file into array randArray
+				; randArray is an array of ASCII chars
+				;------------------------------------------------
+ 000004A7  E8 FFFFFD1F		    call    addToArray
+ 000004AC  68 0000020E R	    push    OFFSET unsortRand
 				
-				; ----------------------------------------------------------------------------------------------------
-				; Check input to determine if input is new max or new min.
-				; If input is > min, jmp to _max and checks if input < max. If input < min, input is saved as new min.
-				; If input > max, input is saved as new max.
-				; After checking each input, returns back to input loop.
-				; -----------------------------------------------------------------------------------------------------
+				;------------------------------------------------
+				; Prints "Unsorted:" label for unsorted array of
+				; random numbers to be printed next
+				;------------------------------------------------
+ 000004B1  E8 FFFFFEBC		    call    displayList
+ 000004B6  BA 00000001		    mov     EDX, TYPE randArray
+ 000004BB  52			    push    EDX
+ 000004BC  BE 0000050D R	    mov     ESI, OFFSET randArray
+ 000004C1  56			    push    ESI
 				
-				; add input to sum, increment count
- 00000121			_valid:
- 00000121  A1 0000035C R	    mov     EAX, inputNum
- 00000126  01 05 00000368 R	    add     sum, EAX
- 0000012C  FF 05 00000374 R	    inc     count
+				;------------------------------------------------
+				; Prints the ASCII array of unsorted values that
+				; were read into randArray from file 
+				;------------------------------------------------
+ 000004C2  E8 FFFFFD46		    call    printUnsArray
+ 000004C7  E8 00000000 E	    call    CrLf    
+ 000004CC  68 00000218 R	    push    OFFSET sortRand
 				
-				; check if input < min, if true, update min
- 00000132			_min:
- 00000132  A1 0000035C R	    mov     EAX, inputNum
- 00000137  3B 05 00000364 R	    cmp     EAX, min
- 0000013D  7F 05		    jg      _max            ; jmp if input > min
- 0000013F  A3 00000364 R	    mov     min, EAX        ; else store as new min
-
-				; check if input > max, if true, update max
- 00000144			_max:
- 00000144  A1 0000035C R	    mov     EAX, inputNum
- 00000149  3B 05 00000360 R	    cmp     EAX, max
- 0000014F  0F 8C FFFFFF5F	    jl      _getInput       ; jmp if input < max
- 00000155  A3 00000360 R	    mov     max, EAX        ; else store as new max
- 0000015A  E9 FFFFFF55		    jmp     _getInput       
-
-				; Exit from user input loop. Exits if input is positive integer
- 0000015F			_exitLoop:
-				; check for count = 0, meaning no valid integers entered, if count = 0 jmp to noValidNums msg
- 0000015F  A1 00000374 R	    mov     EAX, count
- 00000164  83 F8 00		    cmp     EAX, 0
- 00000167  0F 84 00000157	    je     _noValidNums     ; jmp if count = 0
+				;---------------------------------------------------
+				; Prints "Sorted:" label for sorted array of random
+				; numbers to be printed 
+				;---------------------------------------------------
+ 000004D1  E8 FFFFFE9C		    call    displayList
+ 000004D6  68 00000765 R	    push    OFFSET decimalArray
+ 000004DB  68 0000050D R	    push    OFFSET randArray
 				
-				; -----------------------------------------------------------------------------------------------------
-				; Calculate rounded integer average with equation (((((sum * 100) / count ) + |-49|)) / 100).
-				; Works by moving decimal place (sum * 100) and then adding -49 then dividing by 100 to move the decimal place back.
-				; For 0.5 round down & 0.51 round up.
-				; ------------------------------------------------------------------------------------------------------
+				;--------------------------------------------------
+				; Converts ASCII array randArray values into their
+				; decimal representations and adds to decimalArray 
+				;--------------------------------------------------
+ 000004E0  E8 FFFFFD69		    call    convertArray
+ 000004E5  68 00000765 R	    push    OFFSET decimalArray
 				
-				; calculate rounded integer average        -       (((((sum * 100) / count ) + |-49|)) / 100)
- 0000016D  6B 05 00000368 R	    imul    EAX, sum, 100
-	   64
- 00000174  A3 0000036C R	    mov     avg, EAX
- 00000179  99			    cdq                         ; sign-extened EAX into EDX for signed division
- 0000017A  F7 3D 00000374 R	    idiv    count
- 00000180  A3 0000036C R	    mov     avg, EAX
- 00000185  83 05 0000036C R	    add     avg, -49
-	   CF
- 0000018C  A1 0000036C R	    mov     EAX, avg
- 00000191  99			    cdq                         ; sign-extened EAX into EDX for signed division
- 00000192  C7 05 00000380 R	    mov     oneHundred, 100
-	   00000064
- 0000019C  F7 3D 00000380 R	    idiv    oneHundred
- 000001A2  A3 0000036C R	    mov     avg, EAX
+				;-------------------------------------------------------
+				; Sorts decimalArray into ascending order using a
+				; bubble sort method. Overwrites values in decimalArray
+				;-------------------------------------------------------
+ 000004EA  E8 FFFFFDAB		    call    sortArray
+ 000004EF  68 00000765 R	    push    OFFSET decimalArray
 				
-				; -----------------------------------------------------------------------------------------------------------------------------------------
-				; In order to display decimal number without floating point units, break up the non decimal part from the decimal part.
-				; Then round the decimal part to nearest 0.01 and print both numbers seperated by a decimal. To the user, this appears as a decimal number.
-				; ((Remainder of sum / count) * 1000) / count = decimal part of number.
-				; To round decimal part (rmd) to nearest 0.01, (((rmd * 10) + |-49|) / 100) * -1) = rounded decimal part.
-				; Decimal part (rmd) * -1 to get rid of "-" sign.
-				; ------------------------------------------------------------------------------------------------------------------------------------------
+				;---------------------------------------------------
+				; Prints the sorted decimalArray 20 numbers per line
+				; seperated by a space char
+				;---------------------------------------------------
+ 000004F4  E8 FFFFFDE3		    call    printSortArray
+ 000004F9  68 00000220 R	    push    OFFSET medValue
 				
-				; calculate remainder of sum / count in order to get decimal part of number to display     -      rmd = intPart = sum / count  &   (rmd * 1000) / count = decimal-number decimal portion
- 000001A7  A1 00000368 R	    mov     EAX, sum
- 000001AC  99			    cdq                         ; sign-extened EAX into EDX for signed division
- 000001AD  F7 3D 00000374 R	    idiv    count
- 000001B3  89 15 00000378 R	    mov     rmd, EDX
- 000001B9  A3 0000037C R	    mov     intPart, EAX                 ; store to display later as initial part of decimal number
- 000001BE  69 05 00000378 R	    imul    EAX, rmd, 1000
-	   000003E8
- 000001C8  A3 00000378 R	    mov     rmd, EAX
- 000001CD  99			    cdq                         ; sign-extened EAX into EDX for signed division
- 000001CE  F7 3D 00000374 R	    idiv    count
- 000001D4  A3 00000378 R	    mov     rmd, EAX
+				;--------------------------------------------------
+				; Prints "Median Value:" label for median value to
+				; be calculated and printed next
+				;--------------------------------------------------
+ 000004FE  E8 FFFFFE6F		    call    displayList
+ 00000503  68 00000765 R	    push    OFFSET decimalArray
 				
-				; round decimal part (rmd) to the nearest 0.01
-				; (((rmd * 10) + |-49|) / 100) * -1) = rounded decimal part
- 000001D9  6B 05 00000378 R	    imul    EAX, rmd, 10
-	   0A
- 000001E0  A3 00000378 R	    mov     rmd, EAX
- 000001E5  83 05 00000378 R	    add     rmd, -49                    ; + |-49| will round 0.05 down to keep the same rounding format as used with the rounded integer number. If want 0.05 to round up, change to + |-50|
-	   CF
- 000001EC  A1 00000378 R	    mov     EAX, rmd
- 000001F1  99			    cdq                                 ; sign-extened EAX into EDX for signed division
- 000001F2  F7 3D 00000380 R	    idiv    oneHundred
- 000001F8  A3 00000378 R	    mov     rmd, EAX
- 000001FD  6B 05 00000378 R	    imul    EAX, rmd, -1                ; multiply by -1 to get rid of '-' symbol 
-	   FF
- 00000204  A3 00000378 R	    mov     rmd, EAX
+				;-------------------------------------------------
+				; Parses the sorted decimalArray to calculate the
+				; median value which is returned in EAX
+				;-------------------------------------------------
+ 00000508  E8 FFFFFE1A		    call    findMedian
+ 0000050D  E8 00000000 E	    call    WriteDec
+ 00000512  E8 00000000 E	    call    CrLf
+ 00000517  68 00000765 R	    push    OFFSET decimalArray
+ 0000051C  68 00000A85 R	    push    OFFSET occArray
 				
-				; --------------------------------------------------------------
-				; Display results max, min, avg, sum, count, and decimal-number.
-				; --------------------------------------------------------------
-
-				; display count of valid inputs 
- 00000209  E8 00000000 E	    call    CrLf
- 0000020E  BA 000002AB R	    mov     EDX, OFFSET resultMsg1
- 00000213  E8 00000000 E	    call    WriteString
- 00000218  A1 00000374 R	    mov     EAX, count
- 0000021D  E8 00000000 E	    call    WriteDec
- 00000222  BA 000002B8 R	    mov     EDX, OFFSET resultMsg2
- 00000227  E8 00000000 E	    call    WriteString
- 0000022C  E8 00000000 E	    call    CrLf
-				; display sum of valid inputs
- 00000231  BA 000002C7 R	    mov     EDX, OFFSET resultSum
- 00000236  E8 00000000 E	    call    WriteString
- 0000023B  A1 00000368 R	    mov     EAX, sum
- 00000240  E8 00000000 E	    call    WriteInt
- 00000245  E8 00000000 E	    call    CrLf
-				; display max of valid inputs
- 0000024A  BA 000002CD R	    mov     EDX, OFFSET resultMax
- 0000024F  E8 00000000 E	    call    WriteString
- 00000254  A1 00000360 R	    mov     EAX, max
- 00000259  E8 00000000 E	    call    WriteInt
- 0000025E  E8 00000000 E	    call    CrLf
-				; display min of valid inputs
- 00000263  BA 000002D7 R	    mov     EDX, OFFSET resultMin
- 00000268  E8 00000000 E	    call    WriteString
- 0000026D  A1 00000364 R	    mov     EAX, min
- 00000272  E8 00000000 E	    call    WriteInt
- 00000277  E8 00000000 E	    call    CrLf
-				; display avg of valid inputs
- 0000027C  BA 000002E1 R	    mov     EDX, OFFSET resultAvg
- 00000281  E8 00000000 E	    call    WriteString
- 00000286  A1 0000036C R	    mov     EAX, avg
- 0000028B  E8 00000000 E	    call    WriteInt
- 00000290  E8 00000000 E	    call    CrLf
-				; display average in a decimal-point-number 
- 00000295  BA 000002F3 R	    mov     EDX, OFFSET resultDec
- 0000029A  E8 00000000 E	    call    WriteString
- 0000029F  A1 0000037C R	    mov     EAX, intPart
- 000002A4  E8 00000000 E	    call    WriteInt
- 000002A9  BA 000001C8 R	    mov     EDX, OFFSET decimal
- 000002AE  E8 00000000 E	    call    WriteString
- 000002B3  A1 00000378 R	    mov     EAX, rmd
- 000002B8  E8 00000000 E	    call    WriteDec
- 000002BD  E8 00000000 E	    call    CrLf
- 000002C2  EB 14		    jmp     _goodbyeMsg                     ; jmp to goobye message to skip displaying the noValidNums message
+				;-----------------------------------------------------
+				; Parses the decimalArray keeping track of how many
+				; times each num occurs. Instances stored in occArray
+				;-----------------------------------------------------
+ 00000521  E8 FFFFFE61		    call    countOcc
+ 00000526  68 0000022F R	    push    OFFSET numInstan
 				
-				; ---------------------------------------------------------
-				; Display message if no valid numbers entered to calculate.
-				; ---------------------------------------------------------
- 000002C4			_noValidNums:
- 000002C4  E8 00000000 E	    call    Crlf
- 000002C9  BA 00000289 R	    mov     EDX, OFFSET noValidNums
- 000002CE  E8 00000000 E	    call    WriteString
- 000002D3  E8 00000000 E	    call    Crlf
+				;---------------------------------------------------
+				; Prints "Instances of each number generated:" label
+				; for array of instances occArray to be printed next
+				;---------------------------------------------------
+ 0000052B  E8 FFFFFE42		    call    displayList
 				
-				; --------------------------------------------
-				; Display goodbye msg and prints the username.
-				; --------------------------------------------
- 000002D8			_goodbyeMsg:
- 000002D8  E8 00000000 E	    call    CrLf
- 000002DD  BA 00000304 R	    mov     EDX, OFFSET goodbyeMsg
- 000002E2  E8 00000000 E	    call    WriteString
- 000002E7  BA 00000348 R	    mov     EDX, OFFSET userName
- 000002EC  E8 00000000 E	    call    WriteString
- 000002F1  BA 000001C2 R	    mov     EDX, OFFSET explPnt
- 000002F6  E8 00000000 E	    call    WriteString
- 000002FB  E8 00000000 E	    call    CrLf
-
-					Invoke ExitProcess,0	; exit to operating system
- 00000300  6A 00	   *	    push   +000000000h
- 00000302  E8 00000000 E   *	    call   ExitProcess
- 00000307			main ENDP
+				;-------------------------------------------------
+				; Prints the array of instances offArray, numbers
+				; are seperated by a space char 
+				;-------------------------------------------------
+ 00000530  E8 FFFFFE8A		    call    printOcc  
+ 00000535  68 00000253 R	    push    OFFSET  goodbyeMsg
+				
+				;------------------------------------------------
+				; Prints goodbye message and invokes ExitProcess
+				;------------------------------------------------
+ 0000053A  E8 FFFFFED2		    call    goodBye
+ 0000053F			main ENDP
 
 				END main
-Microsoft (R) Macro Assembler Version 14.39.33523.0	    04/26/24 11:25:23
-;A More Advanced Arithmetic Program     (Proj3_greenede.asm  Symbols 2 - 1
+Microsoft (R) Macro Assembler Version 14.39.33523.0	    05/20/24 21:24:06
+2A Random Number Generator     (Proj4_greenede.asm	     Symbols 2 - 1
 
 
 
@@ -599,8 +1112,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 00000388 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000307 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 00000DB0 Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000053F Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -610,6 +1123,15 @@ Procedures, parameters, and locals:
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+ConvertToAscii . . . . . . . . .	P Near	 000000D2 _TEXT	Length= 000000D0 Public STDCALL
+  _eq1to9  . . . . . . . . . . .	L Near	 000000DD _TEXT	
+  _eq10to19  . . . . . . . . . .	L Near	 000000E7 _TEXT	
+  _eq20to29  . . . . . . . . . .	L Near	 00000109 _TEXT	
+  _eq30to39  . . . . . . . . . .	L Near	 00000128 _TEXT	
+  _eq40to49  . . . . . . . . . .	L Near	 00000147 _TEXT	
+  _eq50to59  . . . . . . . . . .	L Near	 00000166 _TEXT	
+  _eq60to69  . . . . . . . . . .	L Near	 00000185 _TEXT	
+  _skip  . . . . . . . . . . . .	L Near	 0000019D _TEXT	
 CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -707,18 +1229,48 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000307 Public STDCALL
-  _getInput  . . . . . . . . . .	L Near	 000000B4 _TEXT	
-  _continue  . . . . . . . . . .	L Near	 000000FF _TEXT	
-  _invalidNegMsg . . . . . . . .	L Near	 0000010B _TEXT	
-  _valid . . . . . . . . . . . .	L Near	 00000121 _TEXT	
-  _min . . . . . . . . . . . . .	L Near	 00000132 _TEXT	
-  _max . . . . . . . . . . . . .	L Near	 00000144 _TEXT	
-  _exitLoop  . . . . . . . . . .	L Near	 0000015F _TEXT	
-  _noValidNums . . . . . . . . .	L Near	 000002C4 _TEXT	
-  _goodbyeMsg  . . . . . . . . .	L Near	 000002D8 _TEXT	
+addToArray . . . . . . . . . . .	P Near	 000001CB _TEXT	Length= 00000042 Public STDCALL
+  _parseLoop . . . . . . . . . .	L Near	 000001F6 _TEXT	
+  _skipStore . . . . . . . . . .	L Near	 00000204 _TEXT	
+  _endParse  . . . . . . . . . .	L Near	 00000209 _TEXT	
+addToFile  . . . . . . . . . . .	P Near	 000001A2 _TEXT	Length= 00000029 Public STDCALL
+convertArray . . . . . . . . . .	P Near	 0000024E _TEXT	Length= 0000004C Public STDCALL
+  _convert . . . . . . . . . . .	L Near	 00000268 _TEXT	
+  _convert2  . . . . . . . . . .	L Near	 0000026D _TEXT	
+  _parse . . . . . . . . . . . .	L Near	 00000285 _TEXT	
+  _endConvert  . . . . . . . . .	L Near	 00000296 _TEXT	
+countOcc . . . . . . . . . . . .	P Near	 00000387 _TEXT	Length= 00000038 Public STDCALL
+  _initLoop  . . . . . . . . . .	L Near	 00000391 _TEXT	
+  _countLoop . . . . . . . . . .	L Near	 000003AA _TEXT	
+displayList  . . . . . . . . . .	P Near	 00000372 _TEXT	Length= 00000015 Public STDCALL
+findMedian . . . . . . . . . . .	P Near	 00000327 _TEXT	Length= 0000004B Public STDCALL
+  _oddMedian . . . . . . . . . .	L Near	 0000034E _TEXT	
+  _evenMedian  . . . . . . . . .	L Near	 00000359 _TEXT	
+  _medianFound . . . . . . . . .	L Near	 0000036C _TEXT	
+genRandNums  . . . . . . . . . .	P Near	 0000006C _TEXT	Length= 00000066 Public STDCALL
+  _numGen  . . . . . . . . . . .	L Near	 0000007E _TEXT	
+goodBye  . . . . . . . . . . . .	P Near	 00000411 _TEXT	Length= 00000017 Public STDCALL
+introduction . . . . . . . . . .	P Near	 00000000 _TEXT	Length= 0000006C Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000428 _TEXT	Length= 00000117 Public STDCALL
+printOcc . . . . . . . . . . . .	P Near	 000003BF _TEXT	Length= 00000052 Public STDCALL
+  _printLoop . . . . . . . . . .	L Near	 000003D4 _TEXT	
+  _newLinee  . . . . . . . . . .	L Near	 000003E0 _TEXT	
+  _sameLinee . . . . . . . . . .	L Near	 000003EA _TEXT	
+  _skipPrint3  . . . . . . . . .	L Near	 000003FE _TEXT	
+printSortArray . . . . . . . . .	P Near	 000002DC _TEXT	Length= 0000004B Public STDCALL
+  _loopP . . . . . . . . . . . .	L Near	 000002F6 _TEXT	
+  _continueP . . . . . . . . . .	L Near	 0000031F _TEXT	
+printUnsArray  . . . . . . . . .	P Near	 0000020D _TEXT	Length= 00000041 Public STDCALL
+  _pArrLoop  . . . . . . . . . .	L Near	 00000222 _TEXT	
+  _newLine . . . . . . . . . . .	L Near	 0000022A _TEXT	
+  _sameLine  . . . . . . . . . .	L Near	 00000234 _TEXT	
+  _noDigit . . . . . . . . . . .	L Near	 00000247 _TEXT	
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
+sortArray  . . . . . . . . . . .	P Near	 0000029A _TEXT	Length= 00000042 Public STDCALL
+  _outerLoop . . . . . . . . . .	L Near	 000002A5 _TEXT	
+  _innerLoop . . . . . . . . . .	L Near	 000002AF _TEXT	
+  _noSwap  . . . . . . . . . . .	L Near	 000002CA _TEXT	
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 
 
@@ -736,6 +1288,7 @@ Symbols:
 @fardata . . . . . . . . . . . .	Text   	 FLAT
 @stack . . . . . . . . . . . . .	Text   	 FLAT
 ALT_MASK . . . . . . . . . . . .	Number	 00000003h   
+ARRAY_SIZE . . . . . . . . . . .	Number	 000000C8h   
 CAPSLOCK_ON  . . . . . . . . . .	Number	 00000080h   
 CREATE_ALWAYS  . . . . . . . . .	Number	 00000002h   
 CREATE_NEW . . . . . . . . . . .	Number	 00000001h   
@@ -790,6 +1343,7 @@ HEAP_GROWABLE  . . . . . . . . .	Number	 00000002h
 HEAP_NO_SERIALIZE  . . . . . . .	Number	 00000001h   
 HEAP_REALLOC_IN_PLACE_ONLY . . .	Number	 00000010h   
 HEAP_ZERO_MEMORY . . . . . . . .	Number	 00000008h   
+HI . . . . . . . . . . . . . . .	Number	 00000032h   
 IDABORT  . . . . . . . . . . . .	Number	 00000003h   
 IDCANCEL . . . . . . . . . . . .	Number	 00000002h   
 IDCLOSE  . . . . . . . . . . . .	Number	 00000008h   
@@ -808,8 +1362,7 @@ KEY_EVENT  . . . . . . . . . . .	Number	 00000001h
 KEY_MASKS  . . . . . . . . . . .	Number	 0000001Fh   
 LEFT_ALT_PRESSED . . . . . . . .	Number	 00000002h   
 LEFT_CTRL_PRESSED  . . . . . . .	Number	 00000008h   
-LOWER_LIMIT_1  . . . . . . . . .	Number	 -000000C8h   
-LOWER_LIMIT_2  . . . . . . . . .	Number	 -00000032h   
+LO . . . . . . . . . . . . . . .	Number	 0000000Fh   
 MB_ABORTRETRYIGNORE  . . . . . .	Number	 00000002h   
 MB_APPLMODAL . . . . . . . . . .	Number	 00000000h   
 MB_CANCELTRYCONTINUE . . . . . .	Number	 00000006h   
@@ -856,8 +1409,6 @@ SetConsoleTitle  . . . . . . . .	Text   	 SetConsoleTitleA
 TAB  . . . . . . . . . . . . . .	Number	 00000009h   
 TRUE . . . . . . . . . . . . . .	Number	 00000001h   
 TRUNCATE_EXISTING  . . . . . . .	Number	 00000005h   
-UPPER_LIMIT_1  . . . . . . . . .	Number	 -00000064h   
-UPPER_LIMIT_2  . . . . . . . . .	Number	 -00000001h   
 VK_11  . . . . . . . . . . . . .	Number	 000000BDh   
 VK_12  . . . . . . . . . . . . .	Number	 000000BBh   
 VK_ADD . . . . . . . . . . . . .	Number	 0000006Bh   
@@ -939,30 +1490,29 @@ VK_UP  . . . . . . . . . . . . .	Number	 00000026h
 WINDOW_BUFFER_SIZE_EVENT . . . .	Number	 00000004h   
 WriteConsoleOutputCharacter  . .	Text   	 WriteConsoleOutputCharacterA
 WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
-avg2 . . . . . . . . . . . . . .	DWord	 00000370 _DATA	
-avg  . . . . . . . . . . . . . .	DWord	 0000036C _DATA	
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
-colon  . . . . . . . . . . . . .	Byte	 000001C5 _DATA	
-count  . . . . . . . . . . . . .	DWord	 00000374 _DATA	
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
-decimalPart  . . . . . . . . . .	DWord	 00000384 _DATA	
-decimal  . . . . . . . . . . . .	Byte	 000001C8 _DATA	
+decimalArray . . . . . . . . . .	DWord	 00000765 _DATA	
+digit1 . . . . . . . . . . . . .	Byte	 00000DA9 _DATA	
+digit2 . . . . . . . . . . . . .	Byte	 00000DAA _DATA	
+digit3 . . . . . . . . . . . . .	Byte	 00000DAB _DATA	
+digit4 . . . . . . . . . . . . .	Byte	 00000DAC _DATA	
+digit5 . . . . . . . . . . . . .	Byte	 00000DAD _DATA	
+digit6 . . . . . . . . . . . . .	Byte	 00000DAE _DATA	
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
-explPnt  . . . . . . . . . . . .	Byte	 000001C2 _DATA	
-extraCredit1 . . . . . . . . . .	Byte	 00000037 _DATA	
-extraCredit2 . . . . . . . . . .	Byte	 00000094 _DATA	
-getUserName  . . . . . . . . . .	Byte	 000001A1 _DATA	
-goodbyeMsg . . . . . . . . . . .	Byte	 00000304 _DATA	
+extra1 . . . . . . . . . . . . .	Byte	 0000007A _DATA	
+extra2 . . . . . . . . . . . . .	Byte	 000000D6 _DATA	
+extraCredit1 . . . . . . . . . .	Byte	 0000002E _DATA	
+fileBuffer . . . . . . . . . . .	Byte	 000002B5 _DATA	
+fileHandle . . . . . . . . . . .	DWord	 000002B1 _DATA	
+goodbyeMsg . . . . . . . . . . .	Byte	 00000253 _DATA	
 gray . . . . . . . . . . . . . .	Number	 00000008h   
 green  . . . . . . . . . . . . .	Number	 00000002h   
-greetUser  . . . . . . . . . . .	Byte	 000001BA _DATA	
-inputNum . . . . . . . . . . . .	DWord	 0000035C _DATA	
-instruct1  . . . . . . . . . . .	Byte	 000000ED _DATA	
-instruct2  . . . . . . . . . . .	Byte	 0000013F _DATA	
-intPart  . . . . . . . . . . . .	DWord	 0000037C _DATA	
-invalidNeg . . . . . . . . . . .	Byte	 00000250 _DATA	
+instruct1  . . . . . . . . . . .	Byte	 00000125 _DATA	
+instruct2  . . . . . . . . . . .	Byte	 00000165 _DATA	
+instruct3  . . . . . . . . . . .	Byte	 000001CB _DATA	
 lightBlue  . . . . . . . . . . .	Number	 00000009h   
 lightCyan  . . . . . . . . . . .	Number	 0000000Bh   
 lightGray  . . . . . . . . . . .	Number	 00000007h   
@@ -970,26 +1520,17 @@ lightGreen . . . . . . . . . . .	Number	 0000000Ah
 lightMagenta . . . . . . . . . .	Number	 0000000Dh   
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
-max  . . . . . . . . . . . . . .	DWord	 00000360 _DATA	
-min  . . . . . . . . . . . . . .	DWord	 00000364 _DATA	
-noValidNums  . . . . . . . . . .	Byte	 00000289 _DATA	
-oneHundred . . . . . . . . . . .	DWord	 00000380 _DATA	
+medValue . . . . . . . . . . . .	Byte	 00000220 _DATA	
+numInstan  . . . . . . . . . . .	Byte	 0000022F _DATA	
+occArray . . . . . . . . . . . .	DWord	 00000A85 _DATA	
 programTitle . . . . . . . . . .	Byte	 00000000 _DATA	
+randArray  . . . . . . . . . . .	Byte	 0000050D _DATA	
+randNumsFile . . . . . . . . . .	Byte	 00000299 _DATA	
 red  . . . . . . . . . . . . . .	Number	 00000004h   
-resultAvg  . . . . . . . . . . .	Byte	 000002E1 _DATA	
-resultDec  . . . . . . . . . . .	Byte	 000002F3 _DATA	
-resultMax  . . . . . . . . . . .	Byte	 000002CD _DATA	
-resultMin  . . . . . . . . . . .	Byte	 000002D7 _DATA	
-resultMsg1 . . . . . . . . . . .	Byte	 000002AB _DATA	
-resultMsg2 . . . . . . . . . . .	Byte	 000002B8 _DATA	
-resultSum  . . . . . . . . . . .	Byte	 000002C7 _DATA	
-rmd  . . . . . . . . . . . . . .	DWord	 00000378 _DATA	
-sum  . . . . . . . . . . . . . .	DWord	 00000368 _DATA	
-userInputMsg1  . . . . . . . . .	Byte	 000001CA _DATA	
-userInputMsg2  . . . . . . . . .	Byte	 00000205 _DATA	
-userInput  . . . . . . . . . . .	Byte	 00000249 _DATA	
-userNameBytes  . . . . . . . . .	DWord	 00000344 _DATA	
-userName . . . . . . . . . . . .	Byte	 00000348 _DATA	
+sortRand . . . . . . . . . . . .	Byte	 00000218 _DATA	
+space  . . . . . . . . . . . . .	Byte	 00000298 _DATA	
+tempAL . . . . . . . . . . . . .	Byte	 00000DAF _DATA	
+unsortRand . . . . . . . . . . .	Byte	 0000020E _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   

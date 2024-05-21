@@ -12,7 +12,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="Proj3_greenede.asm" />
+    <MASM Include="Proj5_greenede.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Random Number Array.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4164AA65-1EF9-4E69-899B-D1BED776070B}</ProjectGuid>
